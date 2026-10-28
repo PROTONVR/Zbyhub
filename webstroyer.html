@@ -57,9 +57,9 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
 <div class="slider-block overdrive-block" id="videoOverdriveBlock" hidden><div class="slider-heading"><label class="slider-label" for="videoOverdrive"><span class="slider-icon" aria-hidden="true">⚡</span><span data-i18n="videoOverdrive">Overdrive obrazu</span></label><span class="level-name" id="videoOverdriveName">0%</span></div><div class="range-line"><span class="range-caption" data-i18n="overdriveOff">OFF</span><div class="range-input-wrap"><input id="videoOverdrive" type="range" min="0" max="5" step="1" value="0"><div class="ticks" aria-hidden="true"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><span class="range-caption overdrive-caption" data-i18n="overdriveMax">MAKS</span></div></div>
 <div class="slider-block"><div class="slider-heading"><label class="slider-label" for="audioLevel"><span class="slider-icon" aria-hidden="true">♫</span><span data-i18n="audio">Destrukcja dźwięku</span></label><span class="level-name" id="audioLevelName">0%</span></div><div class="range-line"><span class="range-caption" data-i18n="clean">CZYSTO</span><div class="range-input-wrap"><input id="audioLevel" type="range" min="0" max="5" step="1" value="0"><div class="ticks" aria-hidden="true"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><span class="range-caption" data-i18n="wrecked">ROZWALONE</span></div></div>
 <div class="slider-block overdrive-block" id="audioOverdriveBlock" hidden><div class="slider-heading"><label class="slider-label" for="audioOverdrive"><span class="slider-icon" aria-hidden="true">⚡</span><span data-i18n="audioOverdrive">Overdrive dźwięku</span></label><span class="level-name" id="audioOverdriveName">0%</span></div><div class="range-line"><span class="range-caption" data-i18n="overdriveOff">OFF</span><div class="range-input-wrap"><input id="audioOverdrive" type="range" min="0" max="5" step="1" value="0"><div class="ticks" aria-hidden="true"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><span class="range-caption overdrive-caption" data-i18n="overdriveMax">MAKS</span></div></div>
-<div class="action-area"><button class="button primary" id="processButton" type="button" disabled><span aria-hidden="true">✳</span><span data-i18n="destroy">Rozwal jakość</span></button><div class="progress-wrap" id="progressWrap" aria-live="polite"><div class="track"><div class="bar" id="progressBar"></div></div><div class="progress-text"><span id="progressStatus" data-i18n="preparing">Przygotowywanie filmu…</span><span id="progressPercent">0%</span></div></div><a class="button result" id="downloadLink" download><span aria-hidden="true">↓</span><span data-i18n="download">Pobierz wynik .webm</span></a><p class="error" id="errorMessage" role="alert"></p><p class="notice" data-i18n="notice">Przetwarzanie odbywa się na Twoim urządzeniu. Wynik jest zapisywany jako WebM; eksport zależy od możliwości przeglądarki i może trwać w czasie rzeczywistym.</p></div>
+<div class="action-area"><button class="button primary" id="processButton" type="button" disabled><span aria-hidden="true">✳</span><span data-i18n="destroy">Rozwal jakość</span></button><div class="progress-wrap" id="progressWrap" aria-live="polite"><div class="track"><div class="bar" id="progressBar"></div></div><div class="progress-text"><span id="progressStatus" data-i18n="preparing">Przygotowywanie filmu…</span><span id="progressPercent">0%</span></div></div><a class="button result" id="downloadLink" download><span aria-hidden="true">↓</span><span data-i18n="download">Pobierz wynik .mp4</span></a><p class="error" id="errorMessage" role="alert"></p><p class="notice" data-i18n="notice">Przetwarzanie odbywa się lokalnie i w czasie rzeczywistym. Overdrive dźwięku może być bardzo głośny — ścisz głośniki przed odsłuchem.</p></div>
 </section></section>
-<footer><span data-i18n="footerLeft">Webstroyer · działa lokalnie w Twojej przeglądarce</span><span data-i18n="footerRight">Bez wysyłania plików na serwer</span><span data-i18n="footerAuthor">Autorem jest nieznany developer "Zbigniew"</span><span id="pageVersion">Wersja strony: 1.4.0</span></footer>
+<footer><span data-i18n="footerLeft">Webstroyer · działa lokalnie w Twojej przeglądarce</span><span data-i18n="footerRight">Bez wysyłania plików na serwer</span><span data-i18n="footerAuthor">Autorem jest nieznany developer "Zbigniew"</span><span id="pageVersion">Wersja strony: 1.4.2</span></footer>
 </main>
 <script>
 (() => {
@@ -73,7 +73,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
     formatOgg:"Ogg",formatMkv:"Matroska",codecH264Baseline:"H.264 Baseline",codecH264Main:"H.264 Main",codecH264High:"H.264 High",
     codecHevc:"HEVC / H.265",codecTheora:"Theora",codecBrowserDefault:"Domyślny przeglądarki",
     formatNote:"Wyszarzone formaty nie są obsługiwane przez enkoder tej przeglądarki. Minimalny bitrate może mocno zmienić obraz i dźwięk. Maksymalny overdrive dźwięku może być głośny.",
-    notice:"Przetwarzanie odbywa się lokalnie i w czasie rzeczywistym. Overdrive dźwięku może być bardzo głośny — ścisz głośniki przed odsłuchem."
+    notice:"Przetwarzanie odbywa się lokalnie i w czasie rzeczywistym. Overdrive dźwięku może być bardzo głośny — ścisz głośniki przed odsłuchem.",
+    cancelRecording:"Zatrzymaj eksport",cancelled:"Eksport został zatrzymany."
   });
   Object.assign(dictionaries.en,{
     title:"Destroy the quality.<br>Your way. TOO MUCH",
@@ -81,7 +82,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
     formatOgg:"Ogg",formatMkv:"Matroska",codecH264Baseline:"H.264 Baseline",codecH264Main:"H.264 Main",codecH264High:"H.264 High",
     codecHevc:"HEVC / H.265",codecTheora:"Theora",codecBrowserDefault:"Browser default",
     formatNote:"Disabled formats are not supported by this browser's encoder. Minimum bitrate can heavily alter video and audio. Maximum audio overdrive can be loud.",
-    notice:"Processing runs locally in real time. Audio overdrive can be very loud — lower your speakers before playback."
+    notice:"Processing runs locally in real time. Audio overdrive can be very loud — lower your speakers before playback.",
+    cancelRecording:"Stop export",cancelled:"Export stopped."
   });
   const $=id=>document.getElementById(id), fileInput=$("fileInput"), video=$("sourceVideo"), preview=$("preview"), processButton=$("processButton"), downloadLink=$("downloadLink"), error=$("errorMessage");
   document.title="Webstroyer: OVERDRIVE";
@@ -120,7 +122,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
       {url:"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Mountain_gorilla_%28Gorilla_beringei_beringei%29_yawn.jpg/500px-Mountain_gorilla_%28Gorilla_beringei_beringei%29_yawn.jpg",altKey:"chimpGorillaAlt",artist:"Charles J. Sharp",page:"https://commons.wikimedia.org/wiki/File:Mountain_gorilla_(Gorilla_beringei_beringei)_yawn.jpg"}
     ]
   };
-  let language="pl",mode="simple",chimpMode=false,videoLoadFailed=false,sourceUrl="",resultUrl="",recorder=null,audioContext=null,mediaElementSource=null,hasSupportedCodec=true;
+  let language="pl",mode="simple",chimpMode=false,videoLoadFailed=false,sourceUrl="",resultUrl="",recorder=null,cancelRecording=null,audioContext=null,mediaElementSource=null,hasSupportedCodec=true;
   const t=key=>dictionaries[language][key];
   function sliderPercent(id){const slider=$(id);return`${Math.round(Number(slider.value)/Number(slider.max)*100)}%`}
   function updateSliderReadouts(){
@@ -181,7 +183,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
     }
     refreshProcessButton()
   }
-  function refreshProcessButton(){processButton.disabled=!fileInput.files?.[0]||!isVideoFile(fileInput.files[0])||videoLoadFailed||Boolean(recorder)||(mode==="advanced"&&!hasSupportedCodec)}
+  function refreshProcessButton(){processButton.disabled=cancelRecording?false:!fileInput.files?.[0]||!isVideoFile(fileInput.files[0])||videoLoadFailed||Boolean(recorder)||(mode==="advanced"&&!hasSupportedCodec);processButton.lastElementChild.textContent=t(cancelRecording?"cancelRecording":"destroy")}
   function formatSize(bytes){if(!bytes)return"0 B";const units=["B","KB","MB","GB"],i=Math.min(Math.floor(Math.log(bytes)/Math.log(1024)),3);return`${(bytes/1024**i).toFixed(i?1:0)} ${units[i]}`}
   function formatDuration(seconds){if(!Number.isFinite(seconds))return"--:--";return`${Math.floor(seconds/60)}:${Math.floor(seconds%60).toString().padStart(2,"0")}`}
   function formatExtension(mime){const type=mime.split(";")[0].toLowerCase();if(type==="video/mp4")return"mp4";if(type==="video/ogg")return"ogv";if(type==="video/x-matroska"||type==="video/matroska")return"mkv";return"webm"}
@@ -192,12 +194,12 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
   video.addEventListener("loadedmetadata",()=>{videoLoadFailed=false;const file=fileInput.files&&fileInput.files[0];if(file)$("fileInfo").querySelector("span").textContent=t("fileDetails")(formatSize(file.size),formatDuration(video.duration));refreshProcessButton();setStatus("ready")});
   video.addEventListener("error",()=>{videoLoadFailed=true;refreshProcessButton();setError(t("badFile"));setStatus("waiting")});
   ["videoLevel","audioLevel","videoOverdrive","audioOverdrive"].forEach(id=>$(id).addEventListener("input",updateSliderReadouts));
-  $("languageButton").addEventListener("click",()=>{language=language==="pl"?"en":"pl";updateLanguage();$("pageVersion").textContent=`${language==="pl"?"Wersja strony":"Page version"}: 1.4.0`});
+  $("languageButton").addEventListener("click",()=>{language=language==="pl"?"en":"pl";updateLanguage();$("pageVersion").textContent=`${language==="pl"?"Wersja strony":"Page version"}: 1.4.2`});
   $("simpleMode").addEventListener("click",()=>setMode("simple"));
   $("advancedMode").addEventListener("click",()=>setMode("advanced"));
   $("outputFormat").addEventListener("change",refreshCodecOptions);
   $("outputCodec").addEventListener("change",refreshProcessButton);
-  function recorderType(){if(!window.MediaRecorder)return"";if(mode==="advanced")return $("outputCodec").value==="browser-default"?"":$("outputCodec").value;if(typeof MediaRecorder.isTypeSupported!=="function")return"";for(const format of ["mp4","webm","ogg","mkv"]){const option=supportedCodecs(format)[0];if(option)return option.type}return""}
+  function recorderType(){if(!window.MediaRecorder)return"";if(mode==="advanced"){const selected=$("outputCodec").value;return selected==="browser-default"?(supportedCodecs($("outputFormat").value)[0]?.type||""):selected}if(typeof MediaRecorder.isTypeSupported!=="function")return"";for(const format of ["mp4","webm","ogg","mkv"]){const option=supportedCodecs(format)[0];if(option)return option.type}return""}
   function distortionCurve(amount){const samples=44100,curve=new Float32Array(samples),drive=amount*60,normalizer=Math.tanh(drive);for(let i=0;i<samples;i++){const x=i*2/samples-1;curve[i]=Math.tanh(x*drive)/normalizer}return curve}
   function videoBitrateForDestruction(level,overdrive){return level===0&&overdrive===0?undefined:Math.max(1000,Math.round(4000000*Math.pow(.16,level+overdrive)))}
   function audioBitrateForOverdrive(overdrive){return overdrive===0?undefined:Math.max(4000,Math.round(128000*Math.pow(.38,overdrive)))}
@@ -215,48 +217,58 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
     source.connect(preGain);preGain.connect(distortion);distortion.connect(bass);bass.connect(lowpass);lowpass.connect(compressor);compressor.connect(gain);gain.connect(destination);
     return{stream:destination.stream,cleanup:()=>{source.disconnect();preGain.disconnect();distortion.disconnect();bass.disconnect();lowpass.disconnect();compressor.disconnect();gain.disconnect()}}
   }
-  async function recordVideo(level,stream,resume,onRecorderStart){
+  function createVideoCapture(level){
     const canvas=document.createElement("canvas"),resolution=mode==="advanced"?$("outputResolution").value:"original",simpleHeights=[Infinity,720,480,360,240,144],targetHeight=mode==="advanced"?(resolution==="original"?Infinity:Number(resolution)):simpleHeights[level],dimensionScale=Math.min(1,targetHeight/video.videoHeight);
     canvas.width=Math.max(2,Math.floor(video.videoWidth*dimensionScale/2)*2);canvas.height=Math.max(2,Math.floor(video.videoHeight*dimensionScale/2)*2);
     const ctx=canvas.getContext("2d",{alpha:false});if(!ctx||typeof canvas.captureStream!=="function")throw Error(t("unsupported"));
     const low=document.createElement("canvas"),lowCtx=low.getContext("2d",{alpha:false}),scale=[1,.78,.58,.4,.28,.18][level];
     if(!lowCtx)throw Error(t("unsupported"));low.width=Math.max(2,Math.round(canvas.width*scale));low.height=Math.max(2,Math.round(canvas.height*scale));
-    const canvasStream=canvas.captureStream(30),track=canvasStream.getVideoTracks()[0];if(!track)throw Error(t("unsupported"));stream.addTrack(track);
-    let raf=0,frameCallback=0;
-    function draw(){
-      if(video.paused||video.ended)return;
+    const stream=canvas.captureStream(30);if(!stream.getVideoTracks().length)throw Error(t("unsupported"));
+    return{stream,draw(){
+      if(video.readyState<2)return;
       lowCtx.drawImage(video,0,0,low.width,low.height);
-      ctx.imageSmoothingEnabled=level===0;ctx.drawImage(low,0,0,canvas.width,canvas.height);
-    }
+      ctx.imageSmoothingEnabled=level===0;ctx.drawImage(low,0,0,canvas.width,canvas.height)
+    }}
+  }
+  async function recordVideo(capture,resume,onRecorderStart){
+    let frameTimer=0,cleanupPlaybackListeners=()=>{};
     let cleanupListeners=()=>{};
     const ended=new Promise((resolve,reject)=>{
       const onEnded=()=>resolve(),onVideoError=()=>reject(Error(t("badFile"))),onRecorderError=()=>reject(Error(t("failed")));
       video.addEventListener("ended",onEnded,{once:true});video.addEventListener("error",onVideoError,{once:true});recorder.addEventListener("error",onRecorderError,{once:true});
       cleanupListeners=()=>{video.removeEventListener("ended",onEnded);video.removeEventListener("error",onVideoError);recorder.removeEventListener("error",onRecorderError)}
     });
+    const cancelled=new Promise((_,reject)=>{cancelRecording=()=>reject(Error(t("cancelled")))});
+    const onPause=()=>{if(recorder&&recorder.state==="recording")recorder.pause()};
+    const onPlay=()=>{if(recorder&&recorder.state==="paused")recorder.resume()};
+    const onSeeked=()=>capture.draw();
+    video.addEventListener("pause",onPause);video.addEventListener("play",onPlay);video.addEventListener("seeked",onSeeked);
+    cleanupPlaybackListeners=()=>{video.removeEventListener("pause",onPause);video.removeEventListener("play",onPlay);video.removeEventListener("seeked",onSeeked)};
     const playback=video.play().then(()=>new Promise(()=>{}),()=>Promise.reject(Error(t("playFailed"))));
     const resumeFailure=resume.then(()=>new Promise(()=>{}),()=>Promise.reject(Error(t("failed"))));
     try{
-      recorder.start(1000);onRecorderStart();
-      function nextFrame(){if(video.paused||video.ended||recorder.state!=="recording")return;draw();if(video.requestVideoFrameCallback)frameCallback=video.requestVideoFrameCallback(nextFrame);else raf=requestAnimationFrame(nextFrame)}
-      if(video.requestVideoFrameCallback)frameCallback=video.requestVideoFrameCallback(nextFrame);else raf=requestAnimationFrame(nextFrame);
-      await Promise.race([ended,playback,resumeFailure]);
+      await resume;
+      capture.draw();
+      recorder.start(1000);onRecorderStart();refreshProcessButton();
+      frameTimer=setInterval(()=>{if(recorder&&recorder.state==="recording")capture.draw()},1000/30);
+      await Promise.race([ended,playback,resumeFailure,cancelled]);
     }finally{
-      cleanupListeners();if(raf)cancelAnimationFrame(raf);if(frameCallback&&video.cancelVideoFrameCallback)video.cancelVideoFrameCallback(frameCallback)
+      cleanupListeners();cleanupPlaybackListeners();if(frameTimer)clearInterval(frameTimer);cancelRecording=null;refreshProcessButton()
     }
   }
   processButton.addEventListener("click",async()=>{
+    if(cancelRecording){cancelRecording();return}
     if(!fileInput.files?.[0]||recorder)return;
     if(!window.MediaRecorder){setError(t("unsupported"));return}
     let mime=recorderType();
     if(mode==="advanced"&&!mime&&$("outputCodec").value!=="browser-default"){setError(t("unsupported"));return}
-    let format=mode==="advanced"?$("outputFormat").value:"webm";
     setError("");clearResult();processButton.disabled=true;$("progressWrap").classList.add("visible");$("progressBar").style.width="0%";$("progressPercent").textContent="0%";$("progressStatus").textContent=t("preparing");setStatus("working");
-    let audio,mixed,chunks=[],successful=false,failed=false,recordingStarted=false,recordingStopped;
+    let audio,videoCapture,mixed,chunks=[],successful=false,failed=false,recordingStarted=false,recordingStopped;
     try{
       if(!Number.isFinite(video.duration)||!video.videoWidth)await new Promise((resolve,reject)=>{video.addEventListener("loadedmetadata",resolve,{once:true});video.addEventListener("error",()=>reject(Error(t("badFile"))),{once:true})});
       audio=createAudioOutput(+$("audioLevel").value,+$("audioOverdrive").value);
-      mixed=new MediaStream(audio.stream.getAudioTracks());
+      videoCapture=createVideoCapture(+$("videoLevel").value);
+      mixed=new MediaStream([...audio.stream.getAudioTracks(),...videoCapture.stream.getVideoTracks()]);
       const recorderOptions={};
       if(mime)recorderOptions.mimeType=mime;
       const videoOverdrive=+$("videoOverdrive").value,videoBitsPerSecond=videoBitrateForDestruction(+$("videoLevel").value,videoOverdrive),audioBitsPerSecond=audioBitrateForOverdrive(+$("audioOverdrive").value);
@@ -265,6 +277,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
       recorder=new MediaRecorder(mixed,recorderOptions);
       mime=recorder.mimeType||mime||"video/webm";
       format=formatExtension(mime);
+      if(recorderOptions.mimeType&&format!==formatExtension(recorderOptions.mimeType))throw Error(t("unsupported"));
       recordingStopped=new Promise(resolve=>recorder.addEventListener("stop",resolve,{once:true}));
       recorder.addEventListener("dataavailable",event=>{if(!failed&&event.data&&event.data.size)chunks.push(event.data)});
       recorder.addEventListener("stop",()=>{
@@ -279,9 +292,9 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
         }
         recorder=null;refreshProcessButton();setStatus("ready");
       },{once:true});
-      video.currentTime=0;video.controls=false;
+      video.currentTime=0;
       const resume=audioContext&&audioContext.state==="suspended"?audioContext.resume():Promise.resolve();
-      await recordVideo(+$("videoLevel").value,mixed,resume,()=>{recordingStarted=true});
+      await recordVideo(videoCapture,resume,()=>{recordingStarted=true});
       successful=true;
       if(recorder&&recorder.state!=="inactive")recorder.stop();
       if(recordingStopped)await recordingStopped;
@@ -292,14 +305,15 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
       if(recordingStarted&&recordingStopped)await recordingStopped;
       recorder=null;refreshProcessButton();setStatus("ready");setError(failure instanceof Error?failure.message:t("failed"));
     }finally{
-      video.controls=true;
+      cancelRecording=null;refreshProcessButton();
       if(audio)audio.cleanup();
       if(mixed)mixed.getTracks().forEach(track=>track.stop());
+      else if(videoCapture)videoCapture.stream.getTracks().forEach(track=>track.stop());
       if(audioContext&&audioContext.state==="running")await audioContext.suspend();
-      video.pause();
+      if(!successful)video.pause();
     }
   });
-  video.addEventListener("timeupdate",()=>{if(video.duration>0&&recorder&&recorder.state==="recording"){const progress=Math.min(99,Math.floor(video.currentTime/video.duration*100));$("progressBar").style.width=`${progress}%`;$("progressPercent").textContent=`${progress}%`;$("progressStatus").textContent=t("recording")}});
+  video.addEventListener("timeupdate",()=>{if(video.duration>0&&recorder){const progress=Math.min(99,Math.floor(video.currentTime/video.duration*100));$("progressBar").style.width=`${progress}%`;$("progressPercent").textContent=`${progress}%`;$("progressStatus").textContent=t("recording")}});
   window.addEventListener("beforeunload",()=>{if(sourceUrl)URL.revokeObjectURL(sourceUrl);if(resultUrl)URL.revokeObjectURL(resultUrl);if(audioContext&&audioContext.state!=="closed")audioContext.close()});updateLanguage();
 })();
 </script>
