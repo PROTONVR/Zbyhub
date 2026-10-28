@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101113">
 <meta name="description" content="Webstroyer — lokalna destrukcja obrazu i dźwięku w filmach.">
-<title>Webstroyer — video destruction</title>
+<title>Webstroyer: OVERDRIVE</title>
 <style>
 :root{color-scheme:dark;--bg:#101113;--panel:#191a1d;--raised:#202125;--line:#303136;--text:#f1f0ed;--muted:#98999f;--accent:#BF00FF;--accent-hover:#D24DFF;--ink:#12051a;--danger:#ff8279;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}body{min-width:320px;min-height:100vh;margin:0;color:var(--text);background:radial-gradient(ellipse at 75% 0%,rgb(191 0 255 / 8%),transparent 36rem),var(--bg)}button,input{font:inherit}button{color:inherit}.app{width:min(1040px,calc(100% - 40px));margin:auto;padding:30px 0 54px}
@@ -18,39 +18,96 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
 .chimp-scene[hidden]{display:none}.chimp-scene{position:relative;overflow:hidden;border:3px dashed #452700;border-radius:20px;padding:clamp(20px,5vw,48px);color:#321c00;background:#ffe477;text-align:center}.chimp-mode .intro,.chimp-mode .workspace{display:none}.chimp-scene h1{font-size:clamp(32px,6vw,56px);text-shadow:2px 2px 0 #fff1a8}.chimp-scene>p{font-size:18px;font-weight:700;line-height:1.5}.chimp-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:24px auto;max-width:760px}.chimp-gallery figure{margin:0;overflow:hidden;border:5px solid #fff6c4;border-radius:14px;background:#fff6c4;box-shadow:0 8px 18px rgb(78 43 0 / 20%);transform:rotate(-2deg)}.chimp-gallery figure:nth-child(2){transform:rotate(2deg)}.chimp-gallery img{display:block;width:100%;height:clamp(180px,32vw,340px);object-fit:cover;background:#e9c74d;color:#321c00;font-size:14px}.chimp-gallery figcaption{padding:9px 6px;color:#523500;font-size:11px;line-height:1.4}.chimp-gallery a{color:#392200;font-weight:700}.banana-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none}.banana-rain span{position:absolute;top:-40px;font-size:clamp(24px,4vw,42px);animation:banana-fall 5s linear infinite}.banana-rain span:nth-child(1){left:8%;animation-delay:-1s}.banana-rain span:nth-child(2){left:34%;animation-delay:-3s}.banana-rain span:nth-child(3){left:68%;animation-delay:-2s}.banana-rain span:nth-child(4){left:91%;animation-delay:-4s}@keyframes banana-fall{to{transform:translateY(700px) rotate(380deg)}}.chimp-bananas{font-size:clamp(30px,6vw,56px);letter-spacing:.15em}.chimp-mode,.chimp-mode body{color:#321c00;background:#ffd942;font-family:"Comic Sans MS","Comic Sans",cursive}.chimp-mode .app{max-width:1100px}.chimp-mode .mark{color:#321c00;background:#ffae00}.chimp-mode .mode-switch,.chimp-mode .language{border-color:#805100;background:#fff1a8;color:#321c00}.chimp-mode .mode-button[aria-pressed=true]{background:#ffae00}.chimp-mode .mode-button:hover:not([aria-pressed=true]){color:#321c00;background:#ffe477}.chimp-mode .chimp-scene{display:block}
 @media(max-width:760px){.app{width:min(560px,calc(100% - 28px));padding-top:20px}header{flex-wrap:wrap;margin-bottom:32px}.header-actions{width:100%;justify-content:space-between}.mode-switch{flex:1}.mode-button{flex:1;min-height:42px;padding:0 10px;font-size:12px}.language{min-height:50px}.workspace{grid-template-columns:1fr}.preview-panel{min-height:350px}.preview{min-height:235px}.controls{padding:18px}.chimp-gallery{gap:10px}.chimp-gallery figure{border-width:3px}.chimp-gallery img{height:clamp(150px,36vw,260px)}}@media(max-width:420px){.brand-name{font-size:14px}.brand{gap:8px}.mark{width:34px;height:34px}.header-actions{gap:6px}.mode-switch{gap:2px;padding:3px}.mode-button{min-height:40px;padding:0 4px;font-size:10px}.language{min-height:46px;padding:0 10px}.advanced-grid{grid-template-columns:1fr}.chimp-gallery{grid-template-columns:1fr;max-width:320px}.chimp-gallery img{height:240px}.chimp-scene>p{font-size:15px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
+<style>
+.mode-switch{gap:6px;border-color:rgb(191 0 255 / 45%);padding:6px;box-shadow:0 0 0 2px rgb(191 0 255 / 9%),0 8px 24px rgb(0 0 0 / 22%)}
+.controls .mode-switch{width:100%;margin-bottom:18px}
+.controls .mode-button{flex:1}
+.overdrive-block[hidden]{display:none}
+.overdrive-block.overdrive-visible{animation:overdrive-reveal .32s ease-out both}
+@keyframes overdrive-reveal{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.range-line{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px}
+.range-input-wrap{min-width:0}
+.range-input-wrap input[type=range]{display:block}
+.ticks{padding:0 8px}
+.brand-overdrive{color:#ff625d}
+.mode-button{min-height:50px;padding:0 20px;font-size:14px;letter-spacing:.01em}
+.mode-button[aria-pressed=true]{box-shadow:0 0 18px rgb(191 0 255 / 34%)}
+.overdrive-block{margin-top:0;border-top-style:dashed}
+.overdrive-block .slider-icon{color:#ff8279;background:rgb(255 130 121 / 12%)}
+.overdrive-block input[type=range]{accent-color:#ff8279}
+.overdrive-caption{color:#ffaaa3}
+@media(max-width:760px){.mode-button{min-height:48px;padding:0 12px;font-size:13px}}
+@media(max-width:420px){.mode-switch{gap:3px;padding:4px}.mode-button{min-height:46px;padding:0 7px;font-size:11px}}
+.brand .mark{width:50px;height:50px;font-size:25px}
+.brand-name{font-size:clamp(21px,3vw,26px);letter-spacing:.09em}
+.header-actions a.language{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+@media(max-width:420px){.brand .mark{width:42px;height:42px;font-size:22px}.brand-name{font-size:clamp(17px,5vw,20px)}}
+</style>
 </head>
 <body>
 <main class="app">
-<header><div class="brand" aria-label="Webstroyer"><span class="mark" aria-hidden="true">W</span><span class="brand-name">WEBSTROYER</span></div><div class="header-actions"><div class="mode-switch" id="modeSwitch" role="group" aria-label="Tryb pracy"><button class="mode-button" id="simpleMode" type="button" aria-pressed="true" data-i18n="simpleMode">Tryb prosty</button><button class="mode-button" id="advancedMode" type="button" aria-pressed="false" data-i18n="advancedMode">Tryb zaawansowany</button></div><a class="language" href="index.html" aria-label="ZbyHub">ZbyHub</a><button class="language" id="languageButton" type="button" aria-label="Change language">EN</button></div></header>
+<header><div class="brand" aria-label="Webstroyer"><span class="mark" aria-hidden="true">W</span><span class="brand-name">WEBSTROYER</span></div><div class="header-actions"><a class="language" href="index.html" aria-label="ZbyHub">ZbyHub</a><button class="language" id="languageButton" type="button" aria-label="Change language">EN</button></div></header>
 <section class="chimp-scene" id="chimpScene" aria-labelledby="chimpTitle" hidden><div class="banana-rain" aria-hidden="true"><span>🍌</span><span>🍌</span><span>🍌</span><span>🍌</span></div><h1 id="chimpTitle" data-i18n="chimpTitle">Ups. To nie jest film.</h1><p data-i18n="chimpMessage">Wykryto podejrzanie dużo banana. Włączono tryb szympansa.</p><div class="chimp-gallery"><figure><img id="chimpPhotoOne" alt="Szympans w naturalnym środowisku"><figcaption id="chimpCreditOne"></figcaption></figure><figure><img id="chimpPhotoTwo" alt="Goryl w naturalnym środowisku"><figcaption id="chimpCreditTwo"></figcaption></figure></div><div class="chimp-bananas" aria-hidden="true">🍌 🐒 🍌 🦍 🍌</div><p data-i18n="chimpExit">Wróć do trybu prostego lub zaawansowanego, żeby wrócić do niszczenia filmów.</p></section>
 <section class="intro"><p class="eyebrow" data-i18n="eyebrow">Narzędzie do destrukcji wideo</p><h1 data-i18n="title">Rozwal jakość.<br>Po swojemu.</h1><p class="subtitle" data-i18n="subtitle">Wybierz film, ustaw osobno destrukcję obrazu i dźwięku, a potem pobierz gotowy plik. Całe przetwarzanie odbywa się lokalnie w przeglądarce.</p></section>
 <section class="workspace" aria-label="Webstroyer workspace">
 <section class="panel preview-panel" aria-labelledby="previewTitle"><div class="panel-top"><h2 class="panel-title" id="previewTitle" data-i18n="preview">Podgląd źródła</h2><span class="pill" id="statusPill" data-i18n="waiting">Oczekiwanie</span></div><div class="preview" id="preview"><div class="empty"><div class="empty-icon" aria-hidden="true">▶</div><strong data-i18n="noVideo">Tu pojawi się Twój film</strong><span data-i18n="dropHint">Wskaż plik wideo, aby rozpocząć.</span></div><video id="sourceVideo" controls playsinline preload="metadata"></video></div><div class="file-row"><div class="file-info" id="fileInfo"><strong data-i18n="noFile">Nie wybrano pliku</strong><span data-i18n="fileHint">MP4, WebM, MOV, MKV, AVI — jeśli obsługuje je przeglądarka</span></div><label class="button" for="fileInput" id="chooseLabel" data-i18n="chooseFile">Wybierz film</label><input class="visually-hidden" id="fileInput" type="file"></div></section>
-<section class="panel controls" aria-labelledby="controlsTitle"><div class="panel-top"><h2 class="panel-title" id="controlsTitle" data-i18n="settings">Ustawienia destrukcji</h2></div><p class="control-intro" data-i18n="settingsHint">Obraz i dźwięk możesz regulować niezależnie. Poziom 0 pozostawia dany kanał bez zmian.</p>
-<section class="advanced-settings" id="advancedSettings" aria-labelledby="advancedTitle" hidden><h3 class="advanced-title" id="advancedTitle" data-i18n="advancedTitle">Eksport zaawansowany</h3><div class="advanced-grid"><div class="field"><label for="outputFormat" data-i18n="formatLabel">Format wyjściowy</label><select id="outputFormat"><option value="webm" data-i18n="formatWebm">WebM</option><option value="mp4" data-i18n="formatMp4">MP4</option></select></div><div class="field"><label for="outputCodec" data-i18n="codecLabel">Kodek wideo</label><select id="outputCodec"></select></div><div class="field"><label for="outputResolution" data-i18n="resolutionLabel">Rozdzielczość</label><select id="outputResolution"><option value="original" data-i18n="resolutionOriginal">Oryginalna</option><option value="1080">1080p</option><option value="720">720p</option><option value="480">480p</option><option value="360">360p</option></select></div></div><p class="advanced-note" data-i18n="formatNote">Dostępne kodeki i formaty wyjściowe zależą od przeglądarki. Pliki wejściowe są dekodowane przez przeglądarkę.</p></section>
-<div class="slider-block"><div class="slider-heading"><label class="slider-label" for="videoLevel"><span class="slider-icon" aria-hidden="true">▧</span><span data-i18n="video">Destrukcja obrazu</span></label><span class="level-name" id="videoLevelName">Bez zmian</span></div><div class="range-line"><span class="range-caption" data-i18n="clean">CZYSTO</span><input id="videoLevel" type="range" min="0" max="5" step="1" value="2"><span class="range-caption" data-i18n="wrecked">ROZWALONE</span></div><div class="ticks" aria-hidden="true"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div>
-<div class="slider-block"><div class="slider-heading"><label class="slider-label" for="audioLevel"><span class="slider-icon" aria-hidden="true">♫</span><span data-i18n="audio">Destrukcja dźwięku</span></label><span class="level-name" id="audioLevelName">Bez zmian</span></div><div class="range-line"><span class="range-caption" data-i18n="clean">CZYSTO</span><input id="audioLevel" type="range" min="0" max="5" step="1" value="0"><span class="range-caption" data-i18n="wrecked">ROZWALONE</span></div><div class="ticks" aria-hidden="true"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div>
+<section class="panel controls" aria-labelledby="controlsTitle"><div class="panel-top"><h2 class="panel-title" id="controlsTitle" data-i18n="settings">Ustawienia destrukcji</h2></div><div class="mode-switch" id="modeSwitch" role="group" aria-label="Tryb pracy"><button class="mode-button" id="simpleMode" type="button" aria-pressed="true" data-i18n="simpleMode">Tryb prosty</button><button class="mode-button" id="advancedMode" type="button" aria-pressed="false" data-i18n="advancedMode">Tryb zaawansowany</button></div><p class="control-intro" data-i18n="settingsHint">Obraz i dźwięk możesz regulować niezależnie. Poziom 0 pozostawia dany kanał bez zmian.</p>
+<section class="advanced-settings" id="advancedSettings" aria-labelledby="advancedTitle" hidden><h3 class="advanced-title" id="advancedTitle" data-i18n="advancedTitle">Eksport zaawansowany</h3><div class="advanced-grid"><div class="field"><label for="outputFormat" data-i18n="formatLabel">Format wyjściowy</label><select id="outputFormat"><option value="mp4" data-i18n="formatMp4">MP4</option><option value="webm" data-i18n="formatWebm">WebM</option></select></div><div class="field"><label for="outputCodec" data-i18n="codecLabel">Kodek wideo</label><select id="outputCodec"></select></div><div class="field"><label for="outputResolution" data-i18n="resolutionLabel">Rozdzielczość</label><select id="outputResolution"><option value="original" data-i18n="resolutionOriginal">Oryginalna</option><option value="1080">1080p</option><option value="720">720p</option><option value="480">480p</option><option value="360">360p</option><option value="240">240p</option><option value="144">144p</option></select></div></div><p class="advanced-note" data-i18n="formatNote">Dostępne kodeki i formaty wyjściowe zależą od przeglądarki. Pliki wejściowe są dekodowane przez przeglądarkę.</p></section>
+<div class="slider-block"><div class="slider-heading"><label class="slider-label" for="videoLevel"><span class="slider-icon" aria-hidden="true">▧</span><span data-i18n="video">Destrukcja obrazu</span></label><span class="level-name" id="videoLevelName">40%</span></div><div class="range-line"><span class="range-caption" data-i18n="clean">CZYSTO</span><div class="range-input-wrap"><input id="videoLevel" type="range" min="0" max="5" step="1" value="2"><div class="ticks" aria-hidden="true"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><span class="range-caption" data-i18n="wrecked">ROZWALONE</span></div></div>
+<div class="slider-block overdrive-block" id="videoOverdriveBlock" hidden><div class="slider-heading"><label class="slider-label" for="videoOverdrive"><span class="slider-icon" aria-hidden="true">⚡</span><span data-i18n="videoOverdrive">Overdrive obrazu</span></label><span class="level-name" id="videoOverdriveName">0%</span></div><div class="range-line"><span class="range-caption" data-i18n="overdriveOff">OFF</span><div class="range-input-wrap"><input id="videoOverdrive" type="range" min="0" max="5" step="1" value="0"><div class="ticks" aria-hidden="true"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><span class="range-caption overdrive-caption" data-i18n="overdriveMax">MAKS</span></div></div>
+<div class="slider-block"><div class="slider-heading"><label class="slider-label" for="audioLevel"><span class="slider-icon" aria-hidden="true">♫</span><span data-i18n="audio">Destrukcja dźwięku</span></label><span class="level-name" id="audioLevelName">0%</span></div><div class="range-line"><span class="range-caption" data-i18n="clean">CZYSTO</span><div class="range-input-wrap"><input id="audioLevel" type="range" min="0" max="5" step="1" value="0"><div class="ticks" aria-hidden="true"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><span class="range-caption" data-i18n="wrecked">ROZWALONE</span></div></div>
+<div class="slider-block overdrive-block" id="audioOverdriveBlock" hidden><div class="slider-heading"><label class="slider-label" for="audioOverdrive"><span class="slider-icon" aria-hidden="true">⚡</span><span data-i18n="audioOverdrive">Overdrive dźwięku</span></label><span class="level-name" id="audioOverdriveName">0%</span></div><div class="range-line"><span class="range-caption" data-i18n="overdriveOff">OFF</span><div class="range-input-wrap"><input id="audioOverdrive" type="range" min="0" max="5" step="1" value="0"><div class="ticks" aria-hidden="true"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div></div><span class="range-caption overdrive-caption" data-i18n="overdriveMax">MAKS</span></div></div>
 <div class="action-area"><button class="button primary" id="processButton" type="button" disabled><span aria-hidden="true">✳</span><span data-i18n="destroy">Rozwal jakość</span></button><div class="progress-wrap" id="progressWrap" aria-live="polite"><div class="track"><div class="bar" id="progressBar"></div></div><div class="progress-text"><span id="progressStatus" data-i18n="preparing">Przygotowywanie filmu…</span><span id="progressPercent">0%</span></div></div><a class="button result" id="downloadLink" download><span aria-hidden="true">↓</span><span data-i18n="download">Pobierz wynik .webm</span></a><p class="error" id="errorMessage" role="alert"></p><p class="notice" data-i18n="notice">Przetwarzanie odbywa się na Twoim urządzeniu. Wynik jest zapisywany jako WebM; eksport zależy od możliwości przeglądarki i może trwać w czasie rzeczywistym.</p></div>
 </section></section>
-<footer><span data-i18n="footerLeft">Webstroyer · działa lokalnie w Twojej przeglądarce</span><span data-i18n="footerRight">Bez wysyłania plików na serwer</span><span data-i18n="footerAuthor">Autorem jest nieznany developer "Zbigniew"</span><span id="pageVersion">Wersja strony: 1.2.0</span></footer>
+<footer><span data-i18n="footerLeft">Webstroyer · działa lokalnie w Twojej przeglądarce</span><span data-i18n="footerRight">Bez wysyłania plików na serwer</span><span data-i18n="footerAuthor">Autorem jest nieznany developer "Zbigniew"</span><span id="pageVersion">Wersja strony: 1.4.0</span></footer>
 </main>
 <script>
 (() => {
   const dictionaries = {
-    pl: {eyebrow:"Narzędzie do destrukcji wideo",title:"Rozwal jakość.<br>Po swojemu.",subtitle:"Wybierz film, ustaw osobno destrukcję obrazu i dźwięku, a potem pobierz gotowy plik. Całe przetwarzanie odbywa się lokalnie w przeglądarce.",preview:"Podgląd źródła",waiting:"Oczekiwanie",ready:"Gotowy",working:"Przetwarzanie",noVideo:"Tu pojawi się Twój film",dropHint:"Wskaż plik wideo, aby rozpocząć.",noFile:"Nie wybrano pliku",fileHint:"Obsługiwane formaty zależą od przeglądarki",chooseFile:"Wybierz film",settings:"Ustawienia destrukcji",settingsHint:"Obraz i dźwięk możesz regulować niezależnie. Poziom 0 pozostawia dany kanał bez zmian.",video:"Destrukcja obrazu",audio:"Destrukcja dźwięku",clean:"CZYSTO",wrecked:"ROZWALONE",destroy:"Rozwal jakość",preparing:"Przygotowywanie filmu…",recording:"Nagrywanie wyniku…",download:"Pobierz wynik",notice:"Przetwarzanie odbywa się na Twoim urządzeniu. Eksport odbywa się w czasie rzeczywistym; obsługiwane kodeki zależą od przeglądarki.",footerLeft:"Webstroyer · działa lokalnie w Twojej przeglądarce",footerRight:"Bez wysyłania plików na serwer",footerAuthor:'Autorem jest nieznany developer "Zbigniew"',modeLabel:"Tryb pracy",simpleMode:"Tryb prosty",advancedMode:"Tryb zaawansowany",advancedTitle:"Eksport zaawansowany",formatLabel:"Format wyjściowy",formatWebm:"WebM",formatMp4:"MP4",codecLabel:"Kodek wideo",resolutionLabel:"Rozdzielczość",resolutionOriginal:"Oryginalna",formatNote:"Dostępne kodeki i formaty wyjściowe zależą od przeglądarki. Pliki wejściowe są dekodowane przez przeglądarkę.",noCodec:"Brak obsługiwanych kodeków dla tego formatu.",codecVp8:"VP8",codecVp9:"VP9",codecAv1:"AV1",codecH264:"H.264",codecDefault:"Domyślny przeglądarki",chimpTitle:"Ups. To nie jest film.",chimpMessage:"Wykryto podejrzanie dużo banana. Włączono tryb szympansa.",chimpExit:"Wróć do trybu prostego lub zaawansowanego, żeby wrócić do niszczenia filmów.",notVideo:"To nie wygląda na plik wideo.",chimpChimpAlt:"Szympans w naturalnym środowisku",chimpGorillaAlt:"Goryl w naturalnym środowisku",chimpCredit:"Zdjęcie: Charles J. Sharp · Wikimedia Commons · CC BY-SA 4.0",unsupported:"Ta przeglądarka nie obsługuje wybranego formatu lub kodeka. Wybierz inną opcję albo użyj aktualnej przeglądarki.",levels:["Bez zmian","Lekka","Wyraźna","Mocna","Brutalna","Totalna"],fileDetails:(size,duration)=>`${size} · ${duration}`,badFile:"Nie udało się odczytać tego pliku wideo. Spróbuj użyć innego formatu.",failed:"Nie udało się przetworzyć filmu. Sprawdź, czy plik jest obsługiwany i spróbuj ponownie.",playFailed:"Przeglądarka nie pozwoliła rozpocząć przetwarzania. Kliknij ponownie i zezwól na odtwarzanie filmu.",missingAudio:"Ten film nie zawiera ścieżki dźwiękowej.",done:"Gotowe",chooseAgain:"Wybierz inny film",languageLabel:"Zmień język"},
-    en: {eyebrow:"Video destruction tool",title:"Destroy the quality.<br>Your way.",subtitle:"Choose a video, set image and audio destruction independently, then download the result. All processing happens locally in your browser.",preview:"Source preview",waiting:"Waiting",ready:"Ready",working:"Processing",noVideo:"Your video will appear here",dropHint:"Choose a video file to get started.",noFile:"No file selected",fileHint:"Input formats depend on browser decoding support",chooseFile:"Choose video",settings:"Destruction settings",settingsHint:"Adjust image and audio independently. Level 0 leaves that channel unchanged.",video:"Video destruction",audio:"Audio destruction",clean:"CLEAN",wrecked:"WRECKED",destroy:"Destroy quality",preparing:"Preparing video…",recording:"Recording output…",download:"Download result",notice:"Processing happens on your device in real time. Available output formats and codecs depend on your browser.",footerLeft:"Webstroyer · runs locally in your browser",footerRight:"Your files are never uploaded",footerAuthor:'The author is an unknown developer "Zbigniew"',modeLabel:"Work mode",simpleMode:"Simple mode",advancedMode:"Advanced mode",advancedTitle:"Advanced export",formatLabel:"Output format",formatWebm:"WebM",formatMp4:"MP4",codecLabel:"Video codec",resolutionLabel:"Resolution",resolutionOriginal:"Original",formatNote:"Available output formats and codecs depend on your browser. Input files are decoded by your browser.",noCodec:"No supported codecs are available for this format.",codecVp8:"VP8",codecVp9:"VP9",codecAv1:"AV1",codecH264:"H.264",codecDefault:"Browser default",chimpTitle:"Oops. That's not a video.",chimpMessage:"Suspicious banana levels detected. Chimp mode activated.",chimpExit:"Switch back to Simple or Advanced mode to return to video destruction.",notVideo:"This does not look like a video file.",chimpChimpAlt:"Chimpanzee in its natural habitat",chimpGorillaAlt:"Gorilla in its natural habitat",chimpCredit:"Photo: Charles J. Sharp · Wikimedia Commons · CC BY-SA 4.0",unsupported:"This browser does not support the selected format or codec. Choose another option or use a recent browser.",levels:["Unchanged","Light","Noticeable","Heavy","Brutal","Total"],fileDetails:(size,duration)=>`${size} · ${duration}`,badFile:"Could not read this video. Try a different format.",failed:"Could not process the video. Check that the file is supported and try again.",playFailed:"The browser could not start processing. Try again and allow video playback.",missingAudio:"This video has no audio track.",done:"Done",chooseAgain:"Choose another video",languageLabel:"Change language"}
+    pl: {eyebrow:"Narzędzie do destrukcji wideo",title:"Rozwal jakość.<br>Po swojemu.",subtitle:"Wybierz film, ustaw osobno destrukcję obrazu i dźwięku, a potem pobierz gotowy plik. Całe przetwarzanie odbywa się lokalnie w przeglądarce.",preview:"Podgląd źródła",waiting:"Oczekiwanie",ready:"Gotowy",working:"Przetwarzanie",noVideo:"Tu pojawi się Twój film",dropHint:"Wskaż plik wideo, aby rozpocząć.",noFile:"Nie wybrano pliku",fileHint:"Obsługiwane formaty zależą od przeglądarki",chooseFile:"Wybierz film",settings:"Ustawienia destrukcji",settingsHint:"W trybie prostym maksymalna destrukcja obrazu obniża wysokość do 144p. Poziom 0 pozostawia kanał bez zmian.",video:"Destrukcja obrazu",audio:"Destrukcja dźwięku",clean:"CZYSTO",wrecked:"ROZWALONE",destroy:"Rozwal jakość",preparing:"Przygotowywanie filmu…",recording:"Nagrywanie wyniku…",download:"Pobierz wynik",notice:"Przetwarzanie odbywa się na Twoim urządzeniu. Eksport odbywa się w czasie rzeczywistym; obsługiwane kodeki zależą od przeglądarki.",footerLeft:"Webstroyer · działa lokalnie w Twojej przeglądarce",footerRight:"Bez wysyłania plików na serwer",footerAuthor:'Autorem jest nieznany developer "Zbigniew"',modeLabel:"Tryb pracy",simpleMode:"Tryb prosty",advancedMode:"Tryb zaawansowany",advancedTitle:"Eksport zaawansowany",formatLabel:"Format wyjściowy",formatWebm:"WebM",formatMp4:"MP4",codecLabel:"Kodek wideo",resolutionLabel:"Rozdzielczość",resolutionOriginal:"Oryginalna",formatNote:"Dostępne kodeki i formaty wyjściowe zależą od przeglądarki. Pliki wejściowe są dekodowane przez przeglądarkę.",noCodec:"Brak obsługiwanych kodeków dla tego formatu.",codecVp8:"VP8",codecVp9:"VP9",codecAv1:"AV1",codecH264:"H.264",codecDefault:"Domyślny przeglądarki",chimpTitle:"Ups. To nie jest film.",chimpMessage:"Wykryto podejrzanie dużo banana. Włączono tryb szympansa.",chimpExit:"Wróć do trybu prostego lub zaawansowanego, żeby wrócić do niszczenia filmów.",notVideo:"To nie wygląda na plik wideo.",chimpChimpAlt:"Szympans w naturalnym środowisku",chimpGorillaAlt:"Goryl w naturalnym środowisku",chimpCredit:"Zdjęcie: Charles J. Sharp · Wikimedia Commons · CC BY-SA 4.0",unsupported:"Ta przeglądarka nie obsługuje wybranego formatu lub kodeka. Wybierz inną opcję albo użyj aktualnej przeglądarki.",levels:["Bez zmian","Lekka","Wyraźna","Mocna","Brutalna","Totalna"],fileDetails:(size,duration)=>`${size} · ${duration}`,badFile:"Nie udało się odczytać tego pliku wideo. Spróbuj użyć innego formatu.",failed:"Nie udało się przetworzyć filmu. Sprawdź, czy plik jest obsługiwany i spróbuj ponownie.",playFailed:"Przeglądarka nie pozwoliła rozpocząć przetwarzania. Kliknij ponownie i zezwól na odtwarzanie filmu.",missingAudio:"Ten film nie zawiera ścieżki dźwiękowej.",done:"Gotowe",chooseAgain:"Wybierz inny film",languageLabel:"Zmień język"},
+    en: {eyebrow:"Video destruction tool",title:"Destroy the quality.<br>Your way.",subtitle:"Choose a video, set image and audio destruction independently, then download the result. All processing happens locally in your browser.",preview:"Source preview",waiting:"Waiting",ready:"Ready",working:"Processing",noVideo:"Your video will appear here",dropHint:"Choose a video file to get started.",noFile:"No file selected",fileHint:"Input formats depend on browser decoding support",chooseFile:"Choose video",settings:"Destruction settings",settingsHint:"In Simple mode, maximum image destruction lowers output height to 144p. Level 0 leaves that channel unchanged.",video:"Video destruction",audio:"Audio destruction",clean:"CLEAN",wrecked:"WRECKED",destroy:"Destroy quality",preparing:"Preparing video…",recording:"Recording output…",download:"Download result",notice:"Processing happens on your device in real time. Available output formats and codecs depend on your browser.",footerLeft:"Webstroyer · runs locally in your browser",footerRight:"Your files are never uploaded",footerAuthor:'The author is an unknown developer "Zbigniew"',modeLabel:"Work mode",simpleMode:"Simple mode",advancedMode:"Advanced mode",advancedTitle:"Advanced export",formatLabel:"Output format",formatWebm:"WebM",formatMp4:"MP4",codecLabel:"Video codec",resolutionLabel:"Resolution",resolutionOriginal:"Original",formatNote:"Available output formats and codecs depend on your browser. Input files are decoded by your browser.",noCodec:"No supported codecs are available for this format.",codecVp8:"VP8",codecVp9:"VP9",codecAv1:"AV1",codecH264:"H.264",codecDefault:"Browser default",chimpTitle:"Oops. That's not a video.",chimpMessage:"Suspicious banana levels detected. Chimp mode activated.",chimpExit:"Switch back to Simple or Advanced mode to return to video destruction.",notVideo:"This does not look like a video file.",chimpChimpAlt:"Chimpanzee in its natural habitat",chimpGorillaAlt:"Gorilla in its natural habitat",chimpCredit:"Photo: Charles J. Sharp · Wikimedia Commons · CC BY-SA 4.0",unsupported:"This browser does not support the selected format or codec. Choose another option or use a recent browser.",levels:["Unchanged","Light","Noticeable","Heavy","Brutal","Total"],fileDetails:(size,duration)=>`${size} · ${duration}`,badFile:"Could not read this video. Try a different format.",failed:"Could not process the video. Check that the file is supported and try again.",playFailed:"The browser could not start processing. Try again and allow video playback.",missingAudio:"This video has no audio track.",done:"Done",chooseAgain:"Choose another video",languageLabel:"Change language"}
   };
+  Object.assign(dictionaries.pl,{
+    title:"Rozwal jakość.<br>Po swojemu. DO PRZESADY",
+    videoOverdrive:"Overdrive obrazu",audioOverdrive:"Overdrive dźwięku",overdriveOff:"OFF",overdriveMax:"MAKS",
+    formatOgg:"Ogg",formatMkv:"Matroska",codecH264Baseline:"H.264 Baseline",codecH264Main:"H.264 Main",codecH264High:"H.264 High",
+    codecHevc:"HEVC / H.265",codecTheora:"Theora",codecBrowserDefault:"Domyślny przeglądarki",
+    formatNote:"Wyszarzone formaty nie są obsługiwane przez enkoder tej przeglądarki. Minimalny bitrate może mocno zmienić obraz i dźwięk. Maksymalny overdrive dźwięku może być głośny.",
+    notice:"Przetwarzanie odbywa się lokalnie i w czasie rzeczywistym. Overdrive dźwięku może być bardzo głośny — ścisz głośniki przed odsłuchem."
+  });
+  Object.assign(dictionaries.en,{
+    title:"Destroy the quality.<br>Your way. TOO MUCH",
+    videoOverdrive:"Video overdrive",audioOverdrive:"Audio overdrive",overdriveOff:"OFF",overdriveMax:"MAX",
+    formatOgg:"Ogg",formatMkv:"Matroska",codecH264Baseline:"H.264 Baseline",codecH264Main:"H.264 Main",codecH264High:"H.264 High",
+    codecHevc:"HEVC / H.265",codecTheora:"Theora",codecBrowserDefault:"Browser default",
+    formatNote:"Disabled formats are not supported by this browser's encoder. Minimum bitrate can heavily alter video and audio. Maximum audio overdrive can be loud.",
+    notice:"Processing runs locally in real time. Audio overdrive can be very loud — lower your speakers before playback."
+  });
   const $=id=>document.getElementById(id), fileInput=$("fileInput"), video=$("sourceVideo"), preview=$("preview"), processButton=$("processButton"), downloadLink=$("downloadLink"), error=$("errorMessage");
+  document.title="Webstroyer: OVERDRIVE";
+  document.querySelector(".brand-name").innerHTML='Webstroyer: <span class="brand-overdrive">OVERDRIVE</span>';
   const codecOptions={
     webm:[
-      {label:"codecVp9",types:["video/webm;codecs=vp9,opus","video/webm;codecs=vp9"]},
-      {label:"codecVp8",types:["video/webm;codecs=vp8,opus","video/webm;codecs=vp8"]},
-      {label:"codecAv1",types:["video/webm;codecs=av01.0.05M.08,opus","video/webm;codecs=av01.0.05M.08"]},
-      {label:"codecDefault",types:["video/webm"]}
+      {label:"codecVp9",types:["video/webm;codecs=vp9,opus","video/webm;codecs=vp9,vorbis","video/webm;codecs=vp9"]},
+      {label:"codecVp8",types:["video/webm;codecs=vp8,opus","video/webm;codecs=vp8,vorbis","video/webm;codecs=vp8"]},
+      {label:"codecAv1",types:["video/webm;codecs=av01.0.05M.08,opus","video/webm;codecs=av01.0.05M.08,vorbis","video/webm;codecs=av01.0.05M.08"]},
+      {label:"codecBrowserDefault",types:["video/webm"]}
     ],
     mp4:[
-      {label:"codecH264",types:["video/mp4;codecs=avc1.640028,mp4a.40.2","video/mp4;codecs=avc1.42E01E,mp4a.40.2","video/mp4;codecs=avc1"]},
-      {label:"codecAv1",types:["video/mp4;codecs=av01.0.08M.08,mp4a.40.2","video/mp4;codecs=av01.0.08M.08"]}
+      {label:"codecH264Baseline",types:["video/mp4;codecs=avc1.42E01E,mp4a.40.2","video/mp4;codecs=avc1.42E01E"]},
+      {label:"codecH264Main",types:["video/mp4;codecs=avc1.4D401E,mp4a.40.2","video/mp4;codecs=avc1.4D401E"]},
+      {label:"codecH264High",types:["video/mp4;codecs=avc1.640028,mp4a.40.2","video/mp4;codecs=avc1.640028"]},
+      {label:"codecH264",types:["video/mp4;codecs=avc1,mp4a.40.2","video/mp4;codecs=avc1"]},
+      {label:"codecAv1",types:["video/mp4;codecs=av01.0.08M.08,mp4a.40.2","video/mp4;codecs=av01.0.08M.08"]},
+      {label:"codecHevc",types:["video/mp4;codecs=hvc1.1.6.L93.B0,mp4a.40.2","video/mp4;codecs=hev1.1.6.L93.B0","video/mp4;codecs=hvc1"]}
+    ],
+    ogg:[
+      {label:"codecTheora",types:["video/ogg;codecs=theora,opus","video/ogg;codecs=theora,vorbis","video/ogg;codecs=theora"]}
+    ],
+    mkv:[
+      {label:"codecVp9",types:["video/x-matroska;codecs=vp9,opus","video/x-matroska;codecs=vp9"]},
+      {label:"codecVp8",types:["video/x-matroska;codecs=vp8,opus","video/x-matroska;codecs=vp8"]},
+      {label:"codecH264",types:["video/x-matroska;codecs=avc1,opus","video/x-matroska;codecs=avc1"]}
     ]
   };
   const chimpPhotos={
@@ -65,40 +122,128 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
   };
   let language="pl",mode="simple",chimpMode=false,videoLoadFailed=false,sourceUrl="",resultUrl="",recorder=null,audioContext=null,mediaElementSource=null,hasSupportedCodec=true;
   const t=key=>dictionaries[language][key];
+  function sliderPercent(id){const slider=$(id);return`${Math.round(Number(slider.value)/Number(slider.max)*100)}%`}
+  function updateSliderReadouts(){
+    $("videoLevelName").textContent=sliderPercent("videoLevel");
+    $("audioLevelName").textContent=sliderPercent("audioLevel");
+    $("videoOverdriveName").textContent=sliderPercent("videoOverdrive");
+    $("audioOverdriveName").textContent=sliderPercent("audioOverdrive");
+    for(const [levelId,blockId] of [["videoLevel","videoOverdriveBlock"],["audioLevel","audioOverdriveBlock"]]){
+      const block=$(blockId),shouldShow=Number($(levelId).value)===Number($(levelId).max);
+      if(shouldShow&&!block.classList.contains("overdrive-visible")){
+        block.hidden=false;void block.offsetWidth;block.classList.add("overdrive-visible");
+      }else if(!shouldShow){
+        block.classList.remove("overdrive-visible");block.hidden=true;
+      }
+    }
+  }
   function setStatus(status){const pill=$("statusPill");pill.className=`pill${status==="ready"?" ready":status==="working"?" working":""}`;pill.textContent=t(status)}
-  function updateLanguage(){document.documentElement.lang=language;document.querySelectorAll("[data-i18n]").forEach(el=>{const value=t(el.dataset.i18n);if(value)el.innerHTML=value});$("languageButton").textContent=language==="pl"?"EN":"PL";$("languageButton").setAttribute("aria-label",t("languageLabel"));$("modeSwitch").setAttribute("aria-label",t("modeLabel"));$("videoLevelName").textContent=t("levels")[+$("videoLevel").value];$("audioLevelName").textContent=t("levels")[+$("audioLevel").value];const file=fileInput.files[0],fileHint=language==="pl"?"MP4, WebM, MOV, MKV, AVI — jeśli obsługuje je przeglądarka":"MP4, WebM, MOV, MKV, AVI — if supported by your browser";if(file){$("chooseLabel").textContent=t("chooseAgain");$("fileInfo").querySelector("span").textContent=!isVideoFile(file)?t("notVideo"):video.readyState>=1?t("fileDetails")(formatSize(file.size),formatDuration(video.duration)):fileHint}else $("fileInfo").querySelector("span").textContent=fileHint;refreshCodecOptions();if(video.readyState>=1)setStatus("ready");if(chimpMode)renderChimpPhotos()}
+  function updateLanguage(){document.documentElement.lang=language;document.querySelectorAll("[data-i18n]").forEach(el=>{const value=t(el.dataset.i18n);if(value)el.innerHTML=value});$("languageButton").textContent=language==="pl"?"EN":"PL";$("languageButton").setAttribute("aria-label",t("languageLabel"));$("modeSwitch").setAttribute("aria-label",t("modeLabel"));updateSliderReadouts();const file=fileInput.files[0],fileHint=language==="pl"?"MP4, WebM, MOV, MKV, AVI — jeśli obsługuje je przeglądarka":"MP4, WebM, MOV, MKV, AVI — if supported by your browser";if(file){$("chooseLabel").textContent=t("chooseAgain");$("fileInfo").querySelector("span").textContent=!isVideoFile(file)?t("notVideo"):video.readyState>=1?t("fileDetails")(formatSize(file.size),formatDuration(video.duration)):fileHint}else $("fileInfo").querySelector("span").textContent=fileHint;refreshCodecOptions();if(video.readyState>=1)setStatus("ready");if(chimpMode)renderChimpPhotos()}
   function setMode(nextMode){chimpMode=false;document.documentElement.classList.remove("chimp-mode");$("chimpScene").hidden=true;mode=nextMode;$("advancedSettings").hidden=mode!=="advanced";$("simpleMode").setAttribute("aria-pressed",String(mode==="simple"));$("advancedMode").setAttribute("aria-pressed",String(mode==="advanced"));refreshCodecOptions();refreshProcessButton()}
   function isVideoFile(file){return file.type.startsWith("video/")||/\.(mp4|m4v|mov|mkv|avi|webm|ogv|ogg|3gp|mpeg|mpg|mts|m2ts|ts|m2v|wmv|flv)$/i.test(file.name)}
   function setChimpPhoto(photo,imageId,creditId){const image=$(imageId);image.src=photo.url;image.alt=t(photo.altKey);const credit=$(creditId),photoLink=document.createElement("a"),licenseLink=document.createElement("a");photoLink.href=photo.page;photoLink.target="_blank";photoLink.rel="noopener noreferrer";photoLink.textContent=`${photo.artist} · Wikimedia Commons`;licenseLink.href="https://creativecommons.org/licenses/by-sa/4.0/";licenseLink.target="_blank";licenseLink.rel="noopener noreferrer";licenseLink.textContent="CC BY-SA 4.0";credit.replaceChildren(photoLink,document.createTextNode(" · "),licenseLink)}
   function renderChimpPhotos(){const pick=photos=>photos[Math.floor(Math.random()*photos.length)];const animals=[pick(chimpPhotos.chimpanzee),pick(chimpPhotos.gorilla)];if(Math.random()<.5)animals.reverse();setChimpPhoto(animals[0],"chimpPhotoOne","chimpCreditOne");setChimpPhoto(animals[1],"chimpPhotoTwo","chimpCreditTwo")}
   function enterChimpMode(){chimpMode=true;document.documentElement.classList.add("chimp-mode");$("chimpScene").hidden=false;clearResult();video.pause();video.removeAttribute("src");video.load();preview.classList.remove("has-video");processButton.disabled=true;renderChimpPhotos()}
-  function refreshCodecOptions(){const select=$("outputCodec"),format=$("outputFormat"),previous=select.value,supports=window.MediaRecorder&&typeof MediaRecorder.isTypeSupported==="function"?type=>MediaRecorder.isTypeSupported(type):()=>false;select.replaceChildren();const available=(codecOptions[format.value]||[]).map(codec=>({codec,type:codec.types.find(supports)})).filter(option=>option.type);hasSupportedCodec=available.length>0;if(!available.length&&format.value==="webm"&&window.MediaRecorder){const option=document.createElement("option");option.value="browser-default";option.textContent=t("codecDefault");select.append(option);hasSupportedCodec=true}else if(!available.length){const option=document.createElement("option");option.value="";option.textContent=t("noCodec");select.append(option)}else{available.forEach(({codec,type})=>{const option=document.createElement("option");option.value=type;option.textContent=t(codec.label);select.append(option)});if(available.some(option=>option.type===previous))select.value=previous}refreshProcessButton()}
-  function refreshProcessButton(){processButton.disabled=!fileInput.files?.[0]||!isVideoFile(fileInput.files[0])||videoLoadFailed||Boolean(recorder)}
+  function supportedCodecs(format){
+    if(!window.MediaRecorder||typeof MediaRecorder.isTypeSupported!=="function")return[];
+    const available=[],seen=new Set();
+    for(const codec of codecOptions[format]||[]){
+      const type=codec.types.find(candidate=>MediaRecorder.isTypeSupported(candidate));
+      if(type&&!seen.has(type)){seen.add(type);available.push({codec,type})}
+    }
+    return available
+  }
+  function refreshCodecOptions(){
+    const select=$("outputCodec"),format=$("outputFormat"),previousType=select.value,formatLabels={webm:"formatWebm",mp4:"formatMp4",ogg:"formatOgg",mkv:"formatMkv"};
+    for(const [key,label] of Object.entries(formatLabels)){
+      let option=Array.from(format.options).find(candidate=>candidate.value===key);
+      if(!option){option=document.createElement("option");option.value=key;format.append(option)}
+      option.textContent=t(label);
+      const available=supportedCodecs(key).length>0||(key==="webm"&&window.MediaRecorder&&typeof MediaRecorder.isTypeSupported!=="function");
+      option.disabled=!available;
+      option.title=available?"":t("noCodec");
+    }
+    let activeFormat=format.value;
+    if(format.selectedOptions[0]?.disabled){
+      const fallback=Array.from(format.options).find(option=>!option.disabled);
+      if(fallback){activeFormat=fallback.value;format.value=activeFormat}
+    }
+    select.replaceChildren();
+    const available=supportedCodecs(activeFormat);
+    hasSupportedCodec=available.length>0;
+    if(!available.length&&activeFormat==="webm"&&window.MediaRecorder&&typeof MediaRecorder.isTypeSupported!=="function"){
+      const option=document.createElement("option");option.value="browser-default";option.textContent=t("codecBrowserDefault");select.append(option);hasSupportedCodec=true;
+    }else if(!available.length){
+      const option=document.createElement("option");option.value="";option.textContent=t("noCodec");select.append(option);
+    }else{
+      available.forEach(({codec,type})=>{const option=document.createElement("option");option.value=type;option.textContent=t(codec.label);select.append(option)});
+      if(available.some(option=>option.type===previousType))select.value=previousType;
+    }
+    refreshProcessButton()
+  }
+  function refreshProcessButton(){processButton.disabled=!fileInput.files?.[0]||!isVideoFile(fileInput.files[0])||videoLoadFailed||Boolean(recorder)||(mode==="advanced"&&!hasSupportedCodec)}
   function formatSize(bytes){if(!bytes)return"0 B";const units=["B","KB","MB","GB"],i=Math.min(Math.floor(Math.log(bytes)/Math.log(1024)),3);return`${(bytes/1024**i).toFixed(i?1:0)} ${units[i]}`}
   function formatDuration(seconds){if(!Number.isFinite(seconds))return"--:--";return`${Math.floor(seconds/60)}:${Math.floor(seconds%60).toString().padStart(2,"0")}`}
+  function formatExtension(mime){const type=mime.split(";")[0].toLowerCase();if(type==="video/mp4")return"mp4";if(type==="video/ogg")return"ogv";if(type==="video/x-matroska"||type==="video/matroska")return"mkv";return"webm"}
   function clearResult(){if(resultUrl)URL.revokeObjectURL(resultUrl);resultUrl="";downloadLink.classList.remove("visible")}
   function setError(message){error.textContent=message;error.classList.toggle("visible",!!message)}
   function escapeHtml(value){return value.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
   fileInput.addEventListener("change",()=>{const file=fileInput.files&&fileInput.files[0];if(!file)return;if(sourceUrl){URL.revokeObjectURL(sourceUrl);sourceUrl=""}clearResult();setError("");if(!isVideoFile(file)){videoLoadFailed=false;video.pause();video.removeAttribute("src");video.load();preview.classList.remove("has-video");$("fileInfo").innerHTML=`<strong title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</strong><span>${t("notVideo")}</span>`;enterChimpMode();return}if(chimpMode)setMode(mode);videoLoadFailed=false;sourceUrl=URL.createObjectURL(file);video.src=sourceUrl;preview.classList.add("has-video");refreshProcessButton();$("chooseLabel").textContent=t("chooseAgain");$("fileInfo").innerHTML=`<strong title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</strong><span>${formatSize(file.size)}</span>`});
   video.addEventListener("loadedmetadata",()=>{videoLoadFailed=false;const file=fileInput.files&&fileInput.files[0];if(file)$("fileInfo").querySelector("span").textContent=t("fileDetails")(formatSize(file.size),formatDuration(video.duration));refreshProcessButton();setStatus("ready")});
   video.addEventListener("error",()=>{videoLoadFailed=true;refreshProcessButton();setError(t("badFile"));setStatus("waiting")});
-  ["videoLevel","audioLevel"].forEach((id,index)=>$(id).addEventListener("input",e=>{$(index?"audioLevelName":"videoLevelName").textContent=t("levels")[+e.target.value]}));
-  $("languageButton").addEventListener("click",()=>{language=language==="pl"?"en":"pl";updateLanguage();$("pageVersion").textContent=`${language==="pl"?"Wersja strony":"Page version"}: 1.2.0`});
+  ["videoLevel","audioLevel","videoOverdrive","audioOverdrive"].forEach(id=>$(id).addEventListener("input",updateSliderReadouts));
+  $("languageButton").addEventListener("click",()=>{language=language==="pl"?"en":"pl";updateLanguage();$("pageVersion").textContent=`${language==="pl"?"Wersja strony":"Page version"}: 1.4.0`});
   $("simpleMode").addEventListener("click",()=>setMode("simple"));
   $("advancedMode").addEventListener("click",()=>setMode("advanced"));
   $("outputFormat").addEventListener("change",refreshCodecOptions);
   $("outputCodec").addEventListener("change",refreshProcessButton);
-  function recorderType(){if(!window.MediaRecorder)return"";if(mode==="advanced")return $("outputCodec").value==="browser-default"?"":$("outputCodec").value;if(typeof MediaRecorder.isTypeSupported!=="function")return"";const automaticTypes=codecOptions.mp4.concat(codecOptions.webm).reduce((types,codec)=>types.concat(codec.types),[]);return automaticTypes.find(type=>MediaRecorder.isTypeSupported(type))||""}
-  function distortionCurve(amount){const samples=44100,curve=new Float32Array(samples),drive=amount*18;for(let i=0;i<samples;i++){const x=i*2/samples-1;curve[i]=(1+drive)*x/(1+drive*Math.abs(x))}return curve}
-  function createAudioOutput(level){if(level===0){const capture=video.captureStream?video.captureStream():video.mozCaptureStream?video.mozCaptureStream():null;if(capture&&capture.getAudioTracks().length)return{stream:new MediaStream(capture.getAudioTracks()),cleanup:()=>capture.getTracks().forEach(track=>track.stop())};if(capture)capture.getTracks().forEach(track=>track.stop())}const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)throw Error(t("unsupported"));if(!audioContext){audioContext=new Audio();mediaElementSource=audioContext.createMediaElementSource(video)}const source=mediaElementSource,destination=audioContext.createMediaStreamDestination();if(level===0){source.connect(destination);return{stream:destination.stream,cleanup:()=>source.disconnect()}}const distortion=audioContext.createWaveShaper(),lowpass=audioContext.createBiquadFilter(),gain=audioContext.createGain(),cutoffs=[22000,16000,11000,7000,4200,2200];distortion.curve=distortionCurve(level*.7);distortion.oversample="2x";lowpass.type="lowpass";lowpass.frequency.value=cutoffs[level];gain.gain.value=Math.max(.18,1-level*.12);source.connect(distortion);distortion.connect(lowpass);lowpass.connect(gain);gain.connect(destination);return{stream:destination.stream,cleanup:()=>{source.disconnect();distortion.disconnect();lowpass.disconnect();gain.disconnect()}}}
-  async function recordVideo(level,stream,resume){const canvas=document.createElement("canvas"),resolution=mode==="advanced"?$("outputResolution").value:"original",maxEdge=resolution==="original"?Infinity:Number(resolution),dimensionScale=Math.min(1,maxEdge/Math.max(video.videoWidth,video.videoHeight));canvas.width=Math.max(2,Math.floor(video.videoWidth*dimensionScale/2)*2);canvas.height=Math.max(2,Math.floor(video.videoHeight*dimensionScale/2)*2);const ctx=canvas.getContext("2d",{alpha:false});if(!ctx||typeof canvas.captureStream!=="function")throw Error(t("unsupported"));const low=document.createElement("canvas"),lowCtx=low.getContext("2d",{alpha:false}),scale=[1,.78,.58,.4,.28,.18][level];if(!lowCtx)throw Error(t("unsupported"));low.width=Math.max(2,Math.round(canvas.width*scale));low.height=Math.max(2,Math.round(canvas.height*scale));const canvasStream=canvas.captureStream(30),track=canvasStream.getVideoTracks()[0];if(!track)throw Error(t("unsupported"));stream.addTrack(track);let frames=0,raf=0,frameCallback=0;function draw(){if(video.paused||video.ended)return;lowCtx.drawImage(video,0,0,low.width,low.height);ctx.save();ctx.filter=level?`contrast(${1+level*.1}) saturate(${Math.max(.1,1-level*.12)}) ${level>=4?"hue-rotate(12deg)":""}`:"none";ctx.imageSmoothingEnabled=level===0;ctx.drawImage(low,0,0,canvas.width,canvas.height);ctx.restore();if(level>=3&&frames%3===0){const h=Math.max(2,Math.floor(canvas.height*.012*(level-1))),y=Math.floor(Math.random()*Math.max(1,canvas.height-h)),shift=Math.floor((Math.random()-.5)*canvas.width*.08*level);ctx.drawImage(canvas,0,y,canvas.width,h,shift,y,canvas.width,h)}frames++}
-    const ended=new Promise((resolve,reject)=>{video.addEventListener("ended",resolve,{once:true});video.addEventListener("error",()=>reject(Error(t("badFile"))),{once:true});recorder.addEventListener("error",()=>reject(Error(t("failed"))),{once:true})});
+  function recorderType(){if(!window.MediaRecorder)return"";if(mode==="advanced")return $("outputCodec").value==="browser-default"?"":$("outputCodec").value;if(typeof MediaRecorder.isTypeSupported!=="function")return"";for(const format of ["mp4","webm","ogg","mkv"]){const option=supportedCodecs(format)[0];if(option)return option.type}return""}
+  function distortionCurve(amount){const samples=44100,curve=new Float32Array(samples),drive=amount*60,normalizer=Math.tanh(drive);for(let i=0;i<samples;i++){const x=i*2/samples-1;curve[i]=Math.tanh(x*drive)/normalizer}return curve}
+  function videoBitrateForDestruction(level,overdrive){return level===0&&overdrive===0?undefined:Math.max(1000,Math.round(4000000*Math.pow(.16,level+overdrive)))}
+  function audioBitrateForOverdrive(overdrive){return overdrive===0?undefined:Math.max(4000,Math.round(128000*Math.pow(.38,overdrive)))}
+  function createAudioOutput(level,overdrive){
+    if(level===0&&overdrive===0){const capture=video.captureStream?video.captureStream():video.mozCaptureStream?video.mozCaptureStream():null;if(capture&&capture.getAudioTracks().length)return{stream:new MediaStream(capture.getAudioTracks()),cleanup:()=>capture.getTracks().forEach(track=>track.stop())};if(capture)capture.getTracks().forEach(track=>track.stop())}
+    const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)throw Error(t("unsupported"));if(!audioContext){audioContext=new Audio();mediaElementSource=audioContext.createMediaElementSource(video)}
+    const source=mediaElementSource,destination=audioContext.createMediaStreamDestination();
+    if(level===0&&overdrive===0){source.connect(destination);return{stream:destination.stream,cleanup:()=>source.disconnect()}}
+    const preGain=audioContext.createGain(),distortion=audioContext.createWaveShaper(),bass=audioContext.createBiquadFilter(),lowpass=audioContext.createBiquadFilter(),compressor=audioContext.createDynamicsCompressor(),gain=audioContext.createGain(),cutoffs=[22000,16000,11000,7000,4200,2200],amount=Math.min(18,level+overdrive*3);
+    preGain.gain.value=1+overdrive*5;distortion.curve=distortionCurve(amount*1.8);distortion.oversample="4x";
+    bass.type="lowshelf";bass.frequency.value=150;bass.gain.value=overdrive*4;
+    lowpass.type="lowpass";lowpass.frequency.value=cutoffs[level];lowpass.Q.value=1+overdrive*.45;
+    compressor.threshold.value=-8;compressor.knee.value=6;compressor.ratio.value=12;compressor.attack.value=.003;compressor.release.value=.12;
+    gain.gain.value=overdrive?Math.max(.22,1-overdrive*.12):1;
+    source.connect(preGain);preGain.connect(distortion);distortion.connect(bass);bass.connect(lowpass);lowpass.connect(compressor);compressor.connect(gain);gain.connect(destination);
+    return{stream:destination.stream,cleanup:()=>{source.disconnect();preGain.disconnect();distortion.disconnect();bass.disconnect();lowpass.disconnect();compressor.disconnect();gain.disconnect()}}
+  }
+  async function recordVideo(level,stream,resume,onRecorderStart){
+    const canvas=document.createElement("canvas"),resolution=mode==="advanced"?$("outputResolution").value:"original",simpleHeights=[Infinity,720,480,360,240,144],targetHeight=mode==="advanced"?(resolution==="original"?Infinity:Number(resolution)):simpleHeights[level],dimensionScale=Math.min(1,targetHeight/video.videoHeight);
+    canvas.width=Math.max(2,Math.floor(video.videoWidth*dimensionScale/2)*2);canvas.height=Math.max(2,Math.floor(video.videoHeight*dimensionScale/2)*2);
+    const ctx=canvas.getContext("2d",{alpha:false});if(!ctx||typeof canvas.captureStream!=="function")throw Error(t("unsupported"));
+    const low=document.createElement("canvas"),lowCtx=low.getContext("2d",{alpha:false}),scale=[1,.78,.58,.4,.28,.18][level];
+    if(!lowCtx)throw Error(t("unsupported"));low.width=Math.max(2,Math.round(canvas.width*scale));low.height=Math.max(2,Math.round(canvas.height*scale));
+    const canvasStream=canvas.captureStream(30),track=canvasStream.getVideoTracks()[0];if(!track)throw Error(t("unsupported"));stream.addTrack(track);
+    let raf=0,frameCallback=0;
+    function draw(){
+      if(video.paused||video.ended)return;
+      lowCtx.drawImage(video,0,0,low.width,low.height);
+      ctx.imageSmoothingEnabled=level===0;ctx.drawImage(low,0,0,canvas.width,canvas.height);
+    }
+    let cleanupListeners=()=>{};
+    const ended=new Promise((resolve,reject)=>{
+      const onEnded=()=>resolve(),onVideoError=()=>reject(Error(t("badFile"))),onRecorderError=()=>reject(Error(t("failed")));
+      video.addEventListener("ended",onEnded,{once:true});video.addEventListener("error",onVideoError,{once:true});recorder.addEventListener("error",onRecorderError,{once:true});
+      cleanupListeners=()=>{video.removeEventListener("ended",onEnded);video.removeEventListener("error",onVideoError);recorder.removeEventListener("error",onRecorderError)}
+    });
     const playback=video.play().then(()=>new Promise(()=>{}),()=>Promise.reject(Error(t("playFailed"))));
     const resumeFailure=resume.then(()=>new Promise(()=>{}),()=>Promise.reject(Error(t("failed"))));
-    recorder.start(1000);
-    function nextFrame(){if(video.paused||video.ended||recorder.state!=="recording")return;draw();if(video.requestVideoFrameCallback)frameCallback=video.requestVideoFrameCallback(nextFrame);else raf=requestAnimationFrame(nextFrame)}
-    if(video.requestVideoFrameCallback)frameCallback=video.requestVideoFrameCallback(nextFrame);else raf=requestAnimationFrame(nextFrame);
-    await Promise.race([ended,playback,resumeFailure]);if(raf)cancelAnimationFrame(raf);if(frameCallback&&video.cancelVideoFrameCallback)video.cancelVideoFrameCallback(frameCallback)
+    try{
+      recorder.start(1000);onRecorderStart();
+      function nextFrame(){if(video.paused||video.ended||recorder.state!=="recording")return;draw();if(video.requestVideoFrameCallback)frameCallback=video.requestVideoFrameCallback(nextFrame);else raf=requestAnimationFrame(nextFrame)}
+      if(video.requestVideoFrameCallback)frameCallback=video.requestVideoFrameCallback(nextFrame);else raf=requestAnimationFrame(nextFrame);
+      await Promise.race([ended,playback,resumeFailure]);
+    }finally{
+      cleanupListeners();if(raf)cancelAnimationFrame(raf);if(frameCallback&&video.cancelVideoFrameCallback)video.cancelVideoFrameCallback(frameCallback)
+    }
   }
   processButton.addEventListener("click",async()=>{
     if(!fileInput.files?.[0]||recorder)return;
@@ -107,14 +252,20 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
     if(mode==="advanced"&&!mime&&$("outputCodec").value!=="browser-default"){setError(t("unsupported"));return}
     let format=mode==="advanced"?$("outputFormat").value:"webm";
     setError("");clearResult();processButton.disabled=true;$("progressWrap").classList.add("visible");$("progressBar").style.width="0%";$("progressPercent").textContent="0%";$("progressStatus").textContent=t("preparing");setStatus("working");
-    let audio,mixed,chunks=[],successful=false,failed=false;
+    let audio,mixed,chunks=[],successful=false,failed=false,recordingStarted=false,recordingStopped;
     try{
       if(!Number.isFinite(video.duration)||!video.videoWidth)await new Promise((resolve,reject)=>{video.addEventListener("loadedmetadata",resolve,{once:true});video.addEventListener("error",()=>reject(Error(t("badFile"))),{once:true})});
-      audio=createAudioOutput(+$("audioLevel").value);
+      audio=createAudioOutput(+$("audioLevel").value,+$("audioOverdrive").value);
       mixed=new MediaStream(audio.stream.getAudioTracks());
-      recorder=mime?new MediaRecorder(mixed,{mimeType:mime}):new MediaRecorder(mixed);
+      const recorderOptions={};
+      if(mime)recorderOptions.mimeType=mime;
+      const videoOverdrive=+$("videoOverdrive").value,videoBitsPerSecond=videoBitrateForDestruction(+$("videoLevel").value,videoOverdrive),audioBitsPerSecond=audioBitrateForOverdrive(+$("audioOverdrive").value);
+      if(videoBitsPerSecond)recorderOptions.videoBitsPerSecond=videoBitsPerSecond;
+      if(audioBitsPerSecond)recorderOptions.audioBitsPerSecond=audioBitsPerSecond;
+      recorder=new MediaRecorder(mixed,recorderOptions);
       mime=recorder.mimeType||mime||"video/webm";
-      format=mime.includes("mp4")?"mp4":"webm";
+      format=formatExtension(mime);
+      recordingStopped=new Promise(resolve=>recorder.addEventListener("stop",resolve,{once:true}));
       recorder.addEventListener("dataavailable",event=>{if(!failed&&event.data&&event.data.size)chunks.push(event.data)});
       recorder.addEventListener("stop",()=>{
         if(successful&&chunks.length){
@@ -130,12 +281,15 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
       },{once:true});
       video.currentTime=0;video.controls=false;
       const resume=audioContext&&audioContext.state==="suspended"?audioContext.resume():Promise.resolve();
-      await recordVideo(+$("videoLevel").value,mixed,resume);
+      await recordVideo(+$("videoLevel").value,mixed,resume,()=>{recordingStarted=true});
       successful=true;
       if(recorder&&recorder.state!=="inactive")recorder.stop();
+      if(recordingStopped)await recordingStopped;
+      if(!chunks.length)throw Error(t("failed"));
     }catch(failure){
       failed=true;
       if(recorder&&recorder.state!=="inactive")recorder.stop();
+      if(recordingStarted&&recordingStopped)await recordingStopped;
       recorder=null;refreshProcessButton();setStatus("ready");setError(failure instanceof Error?failure.message:t("failed"));
     }finally{
       video.controls=true;

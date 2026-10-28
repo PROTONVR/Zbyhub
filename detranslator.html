@@ -51,6 +51,9 @@
     .brand-name { font-size: 15px; font-weight: 900; letter-spacing: .15em; }
     .local-label { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 10px; font-weight: 700; }
     .local-label::before { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); content: ""; }
+    .header-actions { display: flex; align-items: center; gap: 14px; }
+    .home-link { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 9px; padding: 0 14px; color: var(--text); background: var(--panel); font-size: 11px; font-weight: 750; text-decoration: none; }
+    .home-link:hover, .home-link:focus-visible { border-color: var(--accent); }
     .intro { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 25px; }
     .eyebrow { margin: 0 0 12px; color: var(--accent); font-size: 10px; font-weight: 850; letter-spacing: .17em; text-transform: uppercase; }
     h1 { margin: 0; font-size: clamp(42px, 7vw, 72px); line-height: .96; letter-spacing: -.075em; }
@@ -153,7 +156,8 @@
     footer span:last-child { color: var(--accent); }
     button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     @media (max-width: 680px) {
-      header { margin-bottom: 48px; }
+      header { flex-wrap: wrap; margin-bottom: 48px; }
+      .header-actions { width: 100%; justify-content: space-between; }
       .intro { align-items: start; flex-direction: column; gap: 13px; }
       .intro-copy { max-width: 480px; }
       .text-grid { grid-template-columns: 1fr; }
@@ -176,11 +180,14 @@
 <body>
   <main class="app">
     <header>
-      <a class="brand" href="../../index.html" aria-label="ZbyHub">
+      <a class="brand" href="./index.html" aria-label="ZbyHub">
         <span class="brand-mark" aria-hidden="true">D</span>
         <span class="brand-name">DETRANSLATOR</span>
       </a>
-      <span class="local-label">Działa lokalnie · bez wysyłania tekstu</span>
+      <div class="header-actions">
+        <a class="home-link" href="./index.html">← ZbyHub</a>
+        <span class="local-label">Działa lokalnie · bez wysyłania tekstu</span>
+      </div>
     </header>
 
     <section class="intro" aria-labelledby="page-title">
@@ -225,8 +232,6 @@
               </optgroup>
               <optgroup label="Stylizacja językowa">
                 <option value="oldPolish">Staropolszczyzna · stylizacja humorystyczna</option>
-                <option value="pirate">Piracki · ahoy, kapitanie!</option>
-                <option value="emoji">Emojijski · słowa w obrazkach</option>
                 <option value="bureaucratic">Urzędowy · bełkot formularzowy</option>
               </optgroup>
             </select>
@@ -384,8 +389,6 @@
         autokey: "<strong>Autokey</strong> rozwija słowo-klucz o kolejne litery jawnego tekstu. Podaj ten sam klucz przy odszyfrowaniu; to historyczny szyfr, nie nowoczesne zabezpieczenie.",
         bacon: "<strong>Bacon</strong> zapisuje każdy bajt UTF-8 jako osiem symboli A/B. Czytelne jako szyfr-zabawa i w pełni odwracalne.",
         reverse: "<strong>Od tyłu</strong> odwraca kolejność znaków Unicode. To prosta zabawa, nie szyfr.",
-        pirate: "<strong>Piracki</strong> dodaje do rozpoznanych słów marynarską gadkę. To jednokierunkowa, żartobliwa stylizacja.",
-        emoji: "<strong>Emojijski</strong> zamienia rozpoznane słowa na obrazki. Nieznane słowa pozostają bez zmian.",
         bureaucratic: "<strong>Urzędowy</strong> korzysta z obszernego słownika codziennych słów i zwrotów, zamieniając je w rozwlekły żargon formularzy. Nieznane wyrazy pozostawia bez zmian."
       };
       let decrypting = false;
@@ -628,8 +631,90 @@
         }).join("");
       }
 
-      function stylizeOldPolish(text) {
-        const words = {
+      function preserveReplacementCase(reference, replacement) {
+        const letters = Array.from(reference).filter((character) => /\p{L}/u.test(character));
+        if (letters.length && letters.every((character) => character === character.toLocaleUpperCase("pl-PL"))) {
+          return replacement.toLocaleUpperCase("pl-PL");
+        }
+        const firstLetter = Array.from(replacement).find((character) => /\p{L}/u.test(character));
+        const firstSourceLetter = Array.from(reference).find((character) => /\p{L}/u.test(character));
+        if (firstLetter && firstSourceLetter && firstSourceLetter === firstSourceLetter.toLocaleUpperCase("pl-PL")) {
+          return replacement.replace(firstLetter, firstLetter.toLocaleUpperCase("pl-PL"));
+        }
+        return replacement;
+      }
+
+      function findWholeTextReplacement(text, words) {
+        const normalized = text.toLocaleLowerCase("pl-PL")
+          .replace(/[.,!?;:…]+/gu, " ")
+          .replace(/\s+/gu, " ")
+          .trim();
+        const replacement = words[normalized];
+        if (!replacement) return null;
+        const trailingPunctuation = text.match(/[.!?…]+$/u)?.[0] || "";
+        return preserveReplacementCase(text.trim(), replacement) + trailingPunctuation;
+      }
+
+      const oldPolishWords = {
+          "czy wiesz gdzie jest mój telefon": "azaliż wiesz, gdzież spoczywa mój przyrząd do rozmowy na odległość",
+          "czy wiesz gdzie jest telefon": "azaliż wiesz, gdzież spoczywa przyrząd do rozmowy na odległość",
+          "dlaczego nie przyszedłeś wczoraj": "czemuż waść nie przybyłeś dnia wczorajszego",
+          "dlaczego nie przyszłaś wczoraj": "czemuż waść nie przybyłaś dnia wczorajszego",
+          "otwórz drzwi i zamknij okno": "otwórz wrota, a okienko zamknij",
+          "kupiłem chleb mleko i jabłka": "nabyłem bochen, mleczywo i owoce jabłoni",
+          "kupiłam chleb mleko i jabłka": "nabyłam bochen, mleczywo i owoce jabłoni",
+          "mój przyjaciel mieszka w małym domu": "mój druh zamieszkuje niewielkie domostwo",
+          "moja przyjaciółka mieszka w małym domu": "moja druhna zamieszkuje niewielkie domostwo",
+          "jestem zmęczony ale chcę jeszcze pracować": "jestem wielce utrudzony, lecz pragnę dalej pracować",
+          "jestem zmęczona ale chcę jeszcze pracować": "jestem wielce utrudzona, lecz pragnę dalej pracować",
+          "nie mam pieniędzy czy możesz mi pomóc": "nie posiadam grosiwa, waćpanie, czy raczysz mi dopomóc",
+          "co robisz jutro wieczorem": "cóż będziesz czynić nazajutrz z wieczora",
+          "dziękuję za pomoc naprawdę ją doceniam": "wielce dziękuję za waściowe wsparcie i wielce je sobie cenię",
+          "zostaw mnie w spokoju i idź sobie": "dajże mi święty pokój i oddal się, waszmość",
+          "jesteś głupi czy tylko udajesz": "czyż waść rozumu nie masz, czy jeno zgrywasz błazna",
+          "nie gadaj głupot idioto": "nie pleć niedorzeczności, ty błaznie",
+          "spierdalaj stąd nikt cię tu nie chce": "waćpan niechaj zmyka, nikt cię tu nie pragnie",
+          "kurwa znowu zepsułeś mój komputer": "na wszystkie diabły, znowuś uszkodził mą machinę rachującą",
+          "kurwa znowu zepsułaś mój komputer": "na wszystkie diabły, znowuś uszkodziła mą machinę rachującą",
+          "wypierdalaj i zamknij mordę": "oddal się niezwłocznie i zamilknijże, waszmość",
+          "co ty sobie wyobrażasz pajacu": "cóż sobie imaginujesz, waćpański błaznie",
+          "przepraszam za spóźnienie autobus nie przyjechał": "wybaczcie spóźnienie, albowiem dyliżans nie przybył",
+          "jeśli będzie padać zostanę w domu": "jeśli deszcz spadnie, pozostanę w domostwie",
+          "ona czyta książkę a on ogląda film": "owa niewiasta czytuje księgę, a ów jegomość ogląda ruchome obrazy",
+          "możesz przynieść mi wodę": "czy raczysz przynieść mi wody, waszmość",
+          "lubię tę piosenkę": "rad jestem tej pieśni",
+          "dokąd teraz idziesz": "dokądże teraz podążasz, waszmość",
+          "potrzebuję pomocy": "potrzebuję waściowego wsparcia",
+          "proszę poczekaj chwilę": "racz waść zaczekać jedno mgnienie",
+          "nie rozumiem tego zadania": "nie pojmuję tegoż zadania",
+          "dzień dobry jak się masz": "witaj, waszmość, jakże się miewasz",
+          "spotkamy się jutro": "jutro się spotkamy, waszmość",
+          "nie dotykaj moich rzeczy": "nie tykaj waść mych rzeczy",
+          "dlaczego znowu się spóźniłeś": "czemuż znów przybyłeś po czasie, waćpanie",
+          "jesteś śmieszny": "krotochwilny z waści człek",
+          "nikt cię tutaj nie chce": "nikt cię tu nie pragnie",
+          "nie mogę znaleźć kluczy": "nie zdołam odnaleźć kluczy",
+          "gdzie położyłeś moją książkę": "gdzieżeś położył mą księgę",
+          "mój pies zjadł kolację": "mój psiak spożył wieczerzę",
+          "kot śpi na kanapie": "kocisko spoczywa na ławie",
+          "wczoraj oglądaliśmy dobry film": "wczoraj oglądaliśmy przednie ruchome obrazy",
+          "jutro pójdziemy do miasta": "nazajutrz podążymy do grodu",
+          "nie chcę już o tym rozmawiać": "nie pragnę już o tymże rozprawiać",
+          "zrobiłeś to bardzo dobrze": "uczyniłeś to wielce zacnie, waszmość",
+          "zrobiłaś to bardzo dobrze": "uczyniłaś to wielce zacnie, waszmość",
+          "co się stało": "cóż się wydarzyło",
+          "czy wszystko jest w porządku": "azaliż wszystko jest po myśli",
+          "masz rację": "słuszność waść posiadasz",
+          "nie masz racji": "waść słuszności nie posiadasz",
+          "daj mi spokój": "dajże mi święty pokój",
+          "zostaw to w spokoju": "pozostawże tę rzecz w pokoju",
+          "nie chcę cię więcej widzieć": "nie pragnę cię więcej oglądać",
+          "wynoś się z mojego domu": "oddal się z mego domostwa, waszmość",
+          "zamknij się głupku": "zamilknijże, ty mało roztropny człeku",
+          "jesteś kompletnym idiotą": "zaiste, waść nie grzeszysz roztropnością",
+          "ja idę do sklepu": "jam podążam ku kramowi",
+          "mamy nowy samochód i pijemy kawę": "mamy świeżo nabyty powóz bez koni, a kawę spożywamy",
+          "to jest ciekawy problem": "toć zagadnienie wielce godne uwagi",
           "czy ty jesteś upośledzony": "azaliż żartujesz, waszmość",
           "czy jesteś upośledzony": "azaliż żartujesz, waszmość",
           "co ty sobie wyobrażasz": "cóż sobie waść imaginujesz",
@@ -655,7 +740,6 @@
           "co to jest": "cóż to jest za rzecz",
           "gdzie jest": "gdzież się znajduje",
           "pomóż mi": "racz mi waść dopomóc",
-          "potrzebuję pomocy": "potrzebuję waściowego wsparcia",
           "chodź ze mną": "podążaj ze mną, waszmość",
           "zostaw mnie w spokoju": "dajże mi waść święty spokój",
           "idź stąd": "oddal się stąd, waszmość",
@@ -667,8 +751,6 @@
           "dziękuję za pomoc": "wielce dziękuję za waściowe wsparcie",
           "bardzo mi przykro": "wielce mi z tego powodu przykro",
           "to nie moja wina": "nie z mojej to winy",
-          "masz rację": "słuszność waść posiadasz",
-          "nie masz racji": "waść słuszności nie posiadasz",
           "dobrze cię widzieć": "rad jestem waści ujrzeć",
           "uważaj na siebie": "miejże się waść na baczności",
           "zaraz przyjdę": "niebawem przybędę",
@@ -716,7 +798,6 @@
           "odpierdol się": "dajże mi waść święty spokój",
           "zamknij się": "zamilknijże, waszmość",
           "co robisz": "cóż czynisz",
-          "daj mi spokój": "dajże mi święty pokój",
           "daj spokój": "dajże pokój",
           "idź sobie": "oddal się, waszmość",
           "chodź tutaj": "podejdźże tutaj, waszmość",
@@ -735,7 +816,7 @@
           "głupi jesteś": "nie nazbytś roztropny, waszmość",
           "ala": "Ala",
           "czy": "azaliż",
-          "jestem": "jestem",
+          "jestem": "jam",
           "jesteś": "waść jesteś",
           "jest": "jestże",
           "jesteśmy": "myśmy są",
@@ -781,6 +862,7 @@
           "psem": "psiakiem",
           "psu": "psiakowi",
           "pies": "psiak",
+          "psami": "psiakami",
           "psy": "psiaki",
           "mysz": "mysz polna",
           "myszy": "myszy polne",
@@ -812,13 +894,13 @@
           "chcą": "pragną",
           "możesz": "waść możesz",
           "możecie": "możecież",
-          "mogę": "mogę",
+          "mogę": "zdołam",
           "mógł": "mógłby",
           "mogła": "mogłaby",
           "mogli": "mogliby",
           "mogłabym": "mogłabym",
           "moglibyśmy": "moglibyśmy",
-          "muszę": "muszę",
+          "muszę": "winienem",
           "musisz": "waść musisz",
           "musi": "winien jest",
           "musicie": "musicież",
@@ -830,7 +912,7 @@
           "powinni": "winni",
           "powinny": "winny",
           "chcielibyśmy": "pragnęlibyśmy",
-          "wiem": "wiem",
+          "wiem": "wiemże",
           "wiesz": "waść wiesz",
           "wie": "wieże",
           "wiemy": "wiemyż",
@@ -1326,8 +1408,8 @@
           "stara": "sędziwa",
           "młody": "młodzieniec",
           "młoda": "panna młoda",
-          "nowy": "nowy",
-          "nowa": "nowa",
+          "nowy": "świeżo uczyniony",
+          "nowa": "świeżo uczyniona",
           "ważny": "wielkiej wagi",
           "ważna": "wielkiej wagi",
           "śmieszny": "krotochwilny",
@@ -1402,31 +1484,176 @@
           "fajny": "zacny",
           "fajna": "zacna",
           "super": "przedni",
-          "proszę": "proszęć waszmości",
-        };
-        const entries = Object.entries(words).sort((left, right) => right[0].length - left[0].length);
-        const pattern = new RegExp(`(^|[^\\p{L}])(${entries.map(([word]) => word).join("|")})(?=$|[^\\p{L}])`, "giu");
-        return text.replace(pattern, (match, prefix, word) => {
-          const normalized = word.toLocaleLowerCase("pl-PL");
-          const replacement = words[normalized];
-          if (!replacement) return prefix + word;
-          if (word === word.toLocaleUpperCase("pl-PL")) return prefix + replacement.toLocaleUpperCase("pl-PL");
-          if (word[0] === word[0].toLocaleUpperCase("pl-PL")) {
-            return prefix + replacement[0].toLocaleUpperCase("pl-PL") + replacement.slice(1);
-          }
-          return prefix + replacement;
-        });
+          "ono": "onoż",
+          "one": "owe",
+          "tobie": "waćpanu",
+          "jemu": "jegomościowi",
+          "jej": "jejmości",
+          "nam": "namże",
+          "wam": "waćpanom",
+          "ich": "onych",
+          "nasze": "naszeż",
+          "ktoś": "ktoś przecie",
+          "coś": "coś przecie",
+          "wszędzie": "na wszem miejscu",
+          "nigdzie": "nigdzież",
+          "kiedyś": "pewnego czasu",
+          "czasami": "niekiedy",
+          "rzadko": "nieczęsto",
+          "już": "jużci",
+          "jeszcze": "dotąd",
+          "nadal": "wciąż",
+          "nagle": "znienacka",
+          "razem": "społem",
+          "osobno": "z osobna",
+          "przed": "przed obliczem",
+          "za": "poza",
+          "nad": "ponad",
+          "pod": "podług",
+          "przy": "przy boku",
+          "między": "pomiędzy",
+          "bez": "bezże",
+          "dla": "dla dobra",
+          "od": "ode",
+          "do": "ku",
+          "z": "ze",
+          "ze": "z",
+          "na": "naże",
+          "w": "we",
+          "we": "w",
+          "o": "oże",
+          "po": "pośród",
+          "przez": "przeto przez",
+          "przeciwko": "na przekór",
+          "albo": "abo",
+          "lub": "abo",
+          "lecz": "wszelako",
+          "trochę": "nieco",
+          "prawie": "niemalże",
+          "prawdopodobnie": "zapewne",
+          "pewnie": "zaiste",
+          "łatwy": "nietrudny",
+          "łatwa": "nietrudna",
+          "łatwe": "nietrudne",
+          "trudny": "mozolny",
+          "trudna": "mozolna",
+          "trudne": "mozolne",
+          "ciekawy": "godny uwagi",
+          "ciekawa": "godna uwagi",
+          "ciekawie": "z ciekawością",
+          "nudny": "nużący",
+          "nudna": "nużąca",
+          "nudne": "nużące",
+          "wesoły": "radosny",
+          "wesoła": "radosna",
+          "wesołe": "radosne",
+          "zmęczony": "utrudzony",
+          "zmęczona": "utrudzona",
+          "zmęczone": "utrudzone",
+          "głodny": "łaknący jadła",
+          "głodna": "łaknąca jadła",
+          "spragniony": "łaknący napoju",
+          "spragniona": "łaknąca napoju",
+          "zimny": "chłodny",
+          "zimna": "chłodna",
+          "gorący": "rozpalony",
+          "gorąca": "rozpalona",
+          "rodzice": "rodziciele",
+          "mieszkanie": "domostwo",
+          "mieszkania": "domostwa",
+          "mieszkaniu": "domostwie",
+          "kuchnia": "izba kuchenna",
+          "kuchni": "izbie kuchennej",
+          "łazienka": "komnata kąpielna",
+          "łazienki": "komnaty kąpielnej",
+          "sklep": "kram",
+          "sklepu": "kramu",
+          "sklepem": "kramem",
+          "sklepie": "kramie",
+          "wieś": "osada",
+          "wsi": "osadzie",
+          "wsie": "osady",
+          "gra": "igraszka",
+          "gry": "igraszki",
+          "grę": "igraszkę",
+          "czytam": "czytuję",
+          "czytasz": "waść czytujesz",
+          "czyta": "czytuje",
+          "czytamy": "czytujemy",
+          "czytacie": "czytujecie",
+          "czytają": "czytują",
+          "piszę": "kreślę",
+          "piszesz": "waść kreślisz",
+          "pisze": "kreśli",
+          "piszemy": "kreślimy",
+          "piszą": "kreślą",
+          "jem": "jadam",
+          "mieszkam": "zamieszkuję",
+          "mieszkasz": "waść zamieszkujesz",
+          "mieszka": "zamieszkuje",
+          "mieszkamy": "zamieszkujemy",
+          "nazywam": "zwę się",
+          "nazywasz": "waść się zwiesz",
+          "nazywa": "zwie się",
+          "otwieram": "otwieramże",
+          "otwierasz": "waść otwierasz",
+          "otwiera": "otwieraże",
+          "zamykam": "zamykamże",
+          "zamykasz": "waść zamykasz",
+          "zamyka": "zamykaże",
+          "bierzesz": "waść bierzesz",
+          "sprzedaję": "zbywam",
+          "sprzedajesz": "waść zbywasz",
+          "ładne": "urodziwe",
+          "dobremu": "zacnemu",
+          "dobrych": "zacnych",
+          "piękne": "urodziwe",
+          "małego": "niewielkiego",
+          "małej": "niewielkiej",
+          "małe": "niewielkie",
+          "nowego": "świeżo uczynionego",
+          "nowej": "świeżo uczynionej",
+          "nowe": "świeżo uczynione",
+          "łatwo": "bez trudu",
+          "trudno": "z niemałym trudem",
+          "wesoło": "radośnie",
+          "smutno": "frasobliwie",
+          "czerwony": "karmazynowy",
+          "czerwona": "karmazynowa",
+          "czerwone": "karmazynowe",
+          "niebieski": "błękitny",
+          "niebieska": "błękitna",
+          "niebieskie": "błękitne",
+          "zielony": "zieleniący się",
+          "zielona": "zieleniąca się",
+          "zielone": "zieleniące się",
+          "biały": "śnieżysty",
+          "biała": "śnieżysta",
+          "białe": "śnieżyste",
+          "czarny": "kruczy",
+          "czarna": "krucza",
+          "czarne": "krucze",
+          "pierwszy": "pierwszyże",
+          "pierwsza": "pierwszaże",
+          "drugi": "wtóry",
+          "druga": "wtóra",
+          "ostatni": "ostatniże",
+          "ostatnia": "ostatniaże",
+          "proszę": "proszęć waszmości"
+      };
+
+      function stylizeOldPolish(text) {
+        return stylizeWords(text, oldPolishWords);
       }
+
       function stylizeWords(text, words) {
+        const wholeTextReplacement = findWholeTextReplacement(text, words);
+        if (wholeTextReplacement !== null) return wholeTextReplacement;
         const entries = Object.entries(words).sort((left, right) => right[0].length - left[0].length);
         const pattern = new RegExp(`(^|[^\\p{L}])(${entries.map(([word]) => word).join("|")})(?=$|[^\\p{L}])`, "giu");
         return text.replace(pattern, (match, prefix, word) => {
           const replacement = words[word.toLocaleLowerCase("pl-PL")];
-          if (word === word.toLocaleUpperCase("pl-PL")) return prefix + replacement.toLocaleUpperCase("pl-PL");
-          if (word[0] === word[0].toLocaleUpperCase("pl-PL")) {
-            return prefix + replacement[0].toLocaleUpperCase("pl-PL") + replacement.slice(1);
-          }
-          return prefix + replacement;
+          return prefix + preserveReplacementCase(word, replacement);
         });
       }
 
@@ -1438,66 +1665,70 @@
         return Array.from(text).reverse().join("");
       }
 
-      const pirateWords = {
-        "cześć": "ahoj",
-        "witaj": "ahoj",
-        "witam": "ahoj",
-        "dziękuję": "dzięki, kamracie",
-        "proszę": "a jakże, szczurze lądowy",
-        "tak": "arr",
-        "nie": "ani chybi nie",
-        "przyjaciel": "kamrat",
-        "przyjaciele": "kamraci",
-        "przyjacielu": "kamracie",
-        "statek": "okręt",
-        "morze": "siedem mórz",
-        "skarb": "skarby kapitana",
-        "pieniądze": "łup",
-        "jedzenie": "suchary",
-        "dom": "kajuta",
-        "dobrze": "jak po rumie",
-        "świetnie": "jak po rumie",
-        "chodź": "na pokład",
-        "idź": "na pokład"
-      };
-      const emojiWords = {
-        "cześć": "👋",
-        "witaj": "👋",
-        "kot": "🐈",
-        "koty": "🐈🐈",
-        "pies": "🐕",
-        "piesek": "🐶",
-        "ryba": "🐟",
-        "ryby": "🐟",
-        "dom": "🏠",
-        "serce": "❤️",
-        "miłość": "❤️",
-        "słońce": "☀️",
-        "księżyc": "🌙",
-        "gwiazda": "⭐",
-        "woda": "💧",
-        "ogień": "🔥",
-        "drzewo": "🌳",
-        "kawa": "☕",
-        "herbata": "🍵",
-        "pizza": "🍕",
-        "muzyka": "🎵",
-        "film": "🎬",
-        "książka": "📚",
-        "pieniądze": "💸",
-        "szczęście": "🍀",
-        "smutny": "😢",
-        "smutna": "😢",
-        "wesoły": "😄",
-        "wesoła": "😄",
-        "tak": "✅",
-        "nie": "❌",
-        "dziękuję": "🙏",
-        "proszę": "🫴",
-        "super": "✨",
-        "świetnie": "🎉"
-      };
       const bureaucraticWords = {
+        "czy wiesz gdzie jest mój telefon": "proszę o potwierdzenie, czy dysponuje pan wiedzą o lokalizacji mojego telefonu",
+        "czy wiesz gdzie jest telefon": "proszę o wskazanie lokalizacji telefonu, o ile posiada pan taką informację",
+        "dlaczego nie przyszedłeś wczoraj": "proszę o przedstawienie przyczyny niestawiennictwa w dniu wczorajszym",
+        "dlaczego nie przyszłaś wczoraj": "proszę o przedstawienie przyczyny niestawiennictwa w dniu wczorajszym",
+        "otwórz drzwi i zamknij okno": "proszę o otwarcie drzwi oraz zamknięcie okna",
+        "kupiłem chleb mleko i jabłka": "informuję o nabyciu chleba, mleka oraz jabłek",
+        "kupiłam chleb mleko i jabłka": "informuję o nabyciu chleba, mleka oraz jabłek",
+        "mój przyjaciel mieszka w małym domu": "wskazany przeze mnie znajomy zamieszkuje lokal mieszkalny o niewielkim metrażu",
+        "moja przyjaciółka mieszka w małym domu": "wskazana przeze mnie znajoma zamieszkuje lokal mieszkalny o niewielkim metrażu",
+        "jestem zmęczony ale chcę jeszcze pracować": "mimo obniżonej gotowości do pracy deklaruję kontynuowanie obowiązków",
+        "jestem zmęczona ale chcę jeszcze pracować": "mimo obniżonej gotowości do pracy deklaruję kontynuowanie obowiązków",
+        "nie mam pieniędzy czy możesz mi pomóc": "nie dysponuję środkami finansowymi; proszę o informację, czy może pan udzielić mi wsparcia",
+        "co robisz jutro wieczorem": "proszę o przedstawienie planu czynności przewidzianych na jutrzejszy wieczór",
+        "dziękuję za pomoc naprawdę ją doceniam": "składam podziękowanie za udzielone wsparcie, które oceniam jako wartościowe",
+        "zostaw mnie w spokoju i idź sobie": "wnoszę o zaprzestanie kontaktu oraz opuszczenie miejsca rozmowy",
+        "jesteś głupi czy tylko udajesz": "proszę o potwierdzenie, czy sposób rozumowania rozmówcy wymaga dodatkowej weryfikacji",
+        "nie gadaj głupot idioto": "proszę o zaprzestanie przekazywania niepotwierdzonych informacji",
+        "spierdalaj stąd nikt cię tu nie chce": "wnoszę o niezwłoczne opuszczenie miejsca z uwagi na brak zgody na dalszą obecność",
+        "kurwa znowu zepsułeś mój komputer": "stwierdzam ponowne uszkodzenie urządzenia komputerowego i wyrażam niezadowolenie z tego faktu",
+        "kurwa znowu zepsułaś mój komputer": "stwierdzam ponowne uszkodzenie urządzenia komputerowego i wyrażam niezadowolenie z tego faktu",
+        "wypierdalaj i zamknij mordę": "wnoszę o niezwłoczne opuszczenie miejsca oraz zaprzestanie dalszych wypowiedzi",
+        "co ty sobie wyobrażasz pajacu": "proszę o przedstawienie podstaw przyjętego stanowiska",
+        "przepraszam za spóźnienie autobus nie przyjechał": "przepraszam za przekroczenie terminu; przyczyną był brak przyjazdu autobusu",
+        "jeśli będzie padać zostanę w domu": "w przypadku wystąpienia opadów pozostanę w miejscu zamieszkania",
+        "ona czyta książkę a on ogląda film": "jedna osoba zapoznaje się z treścią książki, natomiast druga ogląda film",
+        "możesz przynieść mi wodę": "proszę o dostarczenie wody",
+        "lubię tę piosenkę": "deklaruję pozytywny stosunek do wskazanego utworu muzycznego",
+        "dokąd teraz idziesz": "proszę o wskazanie docelowej lokalizacji przemieszczania się",
+        "potrzebuję pomocy": "zgłaszam zapotrzebowanie na udzielenie wsparcia",
+        "proszę poczekaj chwilę": "proszę o krótkotrwałe pozostanie w gotowości",
+        "nie rozumiem tego zadania": "proszę o dodatkowe wyjaśnienie treści zadania",
+        "dzień dobry jak się masz": "dzień dobry; proszę o informację dotyczącą samopoczucia",
+        "spotkamy się jutro": "spotkanie zostanie zrealizowane w dniu jutrzejszym",
+        "nie dotykaj moich rzeczy": "proszę o nieingerowanie w przedmioty pozostające w mojej dyspozycji",
+        "dlaczego znowu się spóźniłeś": "proszę o wyjaśnienie kolejnego przekroczenia ustalonego terminu",
+        "jesteś śmieszny": "sposób zachowania rozmówcy wywołuje rozbawienie",
+        "nikt cię tutaj nie chce": "brak jest zgody na dalszą obecność adresata w tym miejscu",
+        "nie mogę znaleźć kluczy": "nie udało mi się zlokalizować kompletu kluczy",
+        "gdzie położyłeś moją książkę": "proszę o wskazanie miejsca pozostawienia mojej książki",
+        "mój pies zjadł kolację": "należący do mnie pies spożył przygotowany posiłek wieczorny",
+        "kot śpi na kanapie": "kot pozostaje w stanie spoczynku na kanapie",
+        "wczoraj oglądaliśmy dobry film": "w dniu wczorajszym obejrzeliśmy film oceniony pozytywnie",
+        "jutro pójdziemy do miasta": "w dniu jutrzejszym udamy się do wskazanej miejscowości",
+        "nie chcę już o tym rozmawiać": "wnoszę o zakończenie rozmowy w przedmiotowym zakresie",
+        "zrobiłeś to bardzo dobrze": "realizację wykonano w sposób spełniający wysokie kryteria jakości",
+        "zrobiłaś to bardzo dobrze": "realizację wykonano w sposób spełniający wysokie kryteria jakości",
+        "co się stało": "proszę o przedstawienie zaistniałych okoliczności",
+        "czy wszystko jest w porządku": "proszę o potwierdzenie, czy stan sprawy nie budzi zastrzeżeń",
+        "masz rację": "przedstawione stanowisko uznaje się za zasadne",
+        "nie masz racji": "przedstawione stanowisko nie znajduje potwierdzenia",
+        "daj mi spokój": "wnoszę o zaprzestanie dalszego kontaktu w tej sprawie",
+        "zostaw to w spokoju": "wnoszę o wstrzymanie dalszych działań w tym zakresie",
+        "nie chcę cię więcej widzieć": "wnoszę o ograniczenie dalszych kontaktów bezpośrednich",
+        "wynoś się z mojego domu": "proszę o niezwłoczne opuszczenie lokalu pozostającego w mojej dyspozycji",
+        "zamknij się głupku": "proszę o zaprzestanie wypowiedzi niezwiązanych z przedmiotem sprawy",
+        "jesteś kompletnym idiotą": "sposób rozumowania rozmówcy wymaga ponownej weryfikacji",
+        "ala ma kota i psa": "w lokalu przebywają zwierzęta domowe: kot oraz pies",
+        "ja idę do sklepu": "przemieszczam się do placówki prowadzącej sprzedaż towarów",
+        "mamy nowy samochód i pijemy kawę": "strona dysponuje nowym środkiem transportu i spożywa napar z ziaren",
+        "to jest ciekawy problem": "wskazane zagadnienie wymaga dalszej analizy merytorycznej",
+        "idę do sklepu": "przemieszczam się do placówki prowadzącej sprzedaż towarów",
+        "mamy nowy samochód": "pozostaje w dyspozycji strony nowy środek transportu",
+        "pijemy kawę": "dokonujemy spożycia naparu z palonych ziaren",
         "czy ty jesteś upośledzony": "czy powyższa wypowiedź ma charakter żartobliwy, czy wymaga doprecyzowania",
         "czy jesteś upośledzony": "czy powyższa wypowiedź ma charakter żartobliwy, czy wymaga doprecyzowania",
         "co ty sobie wyobrażasz": "proszę o przedstawienie podstaw przyjętego przez pana założenia",
@@ -1523,7 +1754,6 @@
         "co to jest": "proszę o przedstawienie opisu wskazanego przedmiotu",
         "gdzie jest": "proszę o wskazanie lokalizacji",
         "pomóż mi": "wnoszę o udzielenie mi stosownego wsparcia",
-        "potrzebuję pomocy": "zgłaszam zapotrzebowanie na udzielenie wsparcia",
         "chodź ze mną": "proszę o wspólne przemieszczenie się we wskazanym kierunku",
         "zostaw mnie w spokoju": "wnoszę o zaprzestanie kierowania do mnie dalszych komunikatów",
         "idź stąd": "proszę o opuszczenie wskazanego obszaru",
@@ -1535,8 +1765,6 @@
         "dziękuję za pomoc": "składam podziękowanie za udzielone wsparcie merytoryczne",
         "bardzo mi przykro": "wyrażam ubolewanie z powodu zaistniałych okoliczności",
         "to nie moja wina": "nie stwierdza się związku przyczynowego po mojej stronie",
-        "masz rację": "przedstawione stanowisko uznaje się za zasadne",
-        "nie masz racji": "przedstawione stanowisko nie znajduje potwierdzenia",
         "dobrze cię widzieć": "odnotowuję pozytywny fakt ponownego kontaktu",
         "uważaj na siebie": "proszę o zachowanie należytej ostrożności",
         "zaraz przyjdę": "stawię się w najbliższym możliwym terminie",
@@ -1583,7 +1811,6 @@
         "odpierdol się": "wnoszę o zaprzestanie kierowania do mnie dalszych żądań",
         "zamknij mordę": "proszę o zaprzestanie dalszego formułowania wypowiedzi",
         "co robisz": "proszę o wskazanie realizowanej czynności",
-        "daj mi spokój": "wnoszę o zaprzestanie dalszego kontaktu w tej sprawie",
         "daj spokój": "proszę o odstąpienie od dalszego procedowania tej kwestii",
         "idź sobie": "proszę o opuszczenie miejsca prowadzenia rozmowy",
         "chodź tutaj": "proszę o stawienie się we wskazanej lokalizacji",
@@ -1672,6 +1899,8 @@
         "cześć": "niniejszym potwierdzam przyjęcie pozdrowienia",
         "tak": "udzielam odpowiedzi twierdzącej",
         "nie": "udzielam odpowiedzi przeczącej",
+        "i": "oraz",
+        "to": "przedmiot lub okoliczność objęta niniejszą sprawą",
         "proszę": "zwracam się z uprzejmą prośbą o podjęcie stosownych działań",
         "dziękuję": "składam podziękowanie za współpracę",
         "teraz": "w bieżącym przedziale czasowym",
@@ -1689,6 +1918,258 @@
         "spotkanie": "czynność konsultacyjno-uzgodnieniowa",
         "wiadomość": "komunikat przekazany drogą informacyjną",
         "pieniądze": "środki finansowe pozostające w dyspozycji",
+        "ja": "osoba składająca niniejsze oświadczenie",
+        "ty": "osoba będąca adresatem niniejszej informacji",
+        "on": "wskazany podmiot rodzaju męskiego",
+        "ona": "wskazany podmiot rodzaju żeńskiego",
+        "ono": "wskazany podmiot rodzaju nijakiego",
+        "my": "strona występująca w niniejszej sprawie",
+        "wy": "adresaci niniejszego komunikatu",
+        "oni": "wskazane osoby trzecie",
+        "one": "wskazane elementy rodzaju żeńskiego",
+        "mnie": "osobę składającą niniejsze oświadczenie",
+        "tobie": "adresatowi niniejszej informacji",
+        "jemu": "wskazanemu podmiotowi",
+        "jej": "wskazanej osobie",
+        "nam": "stronie występującej w sprawie",
+        "wam": "adresatom niniejszego komunikatu",
+        "ich": "wskazanych osób lub elementów",
+        "moje": "pozostające w mojej dyspozycji",
+        "twoje": "pozostające w dyspozycji adresata",
+        "nasze": "pozostające w dyspozycji strony",
+        "ktoś": "nieustalona osoba fizyczna",
+        "coś": "nieustalony przedmiot lub zagadnienie",
+        "wszędzie": "we wszystkich dostępnych lokalizacjach",
+        "nigdzie": "w żadnej z dostępnych lokalizacji",
+        "kiedyś": "w nieustalonym terminie przeszłym",
+        "wczoraj": "w dniu poprzedzającym dzień bieżący",
+        "zawsze": "w każdym przypadku bez wyjątku",
+        "nigdy": "w żadnym przypadku",
+        "czasami": "w wybranych przedziałach czasu",
+        "często": "z wysoką częstotliwością",
+        "rzadko": "z niską częstotliwością",
+        "już": "na obecnym etapie realizacji",
+        "jeszcze": "w dalszym ciągu realizacji",
+        "nadal": "w sposób ciągły na obecnym etapie",
+        "nagle": "bez uprzedniego zgłoszenia",
+        "razem": "w ramach wspólnej realizacji",
+        "osobno": "w odrębnym trybie",
+        "przed": "w terminie wcześniejszym niż",
+        "za": "w zakresie dotyczącym",
+        "nad": "w obszarze przekraczającym",
+        "pod": "w ramach podległości wobec",
+        "przy": "w obecności lub w odniesieniu do",
+        "między": "w relacji pomiędzy",
+        "bez": "z wyłączeniem",
+        "dla": "na potrzeby",
+        "od": "począwszy od",
+        "do": "aż do momentu",
+        "z": "z uwzględnieniem",
+        "ze": "z uwzględnieniem",
+        "na": "w zakresie",
+        "w": "w ramach",
+        "we": "w ramach",
+        "o": "w przedmiocie",
+        "po": "po zakończeniu",
+        "przez": "za pośrednictwem",
+        "przeciwko": "wobec",
+        "albo": "ewentualnie",
+        "lub": "ewentualnie",
+        "lecz": "z zastrzeżeniem, że",
+        "trochę": "w ograniczonym zakresie",
+        "prawie": "w stopniu zbliżonym do pełnego",
+        "prawdopodobnie": "z prawdopodobieństwem wymagającym potwierdzenia",
+        "pewnie": "z wysokim prawdopodobieństwem",
+        "łatwy": "niewymagający znacznych nakładów realizacyjnych",
+        "łatwa": "niewymagająca znacznych nakładów realizacyjnych",
+        "łatwe": "niewymagające znacznych nakładów realizacyjnych",
+        "trudny": "wymagający dodatkowej analizy",
+        "trudna": "wymagająca dodatkowej analizy",
+        "trudne": "wymagające dodatkowej analizy",
+        "ciekawy": "posiadający walor informacyjny",
+        "ciekawa": "posiadająca walor informacyjny",
+        "ciekawie": "w sposób wzbudzający zainteresowanie",
+        "nudny": "niegenerujący dodatkowego zainteresowania",
+        "nudna": "niegenerująca dodatkowego zainteresowania",
+        "nudne": "niegenerujące dodatkowego zainteresowania",
+        "wesoły": "pozostający w pozytywnym stanie emocjonalnym",
+        "wesoła": "pozostająca w pozytywnym stanie emocjonalnym",
+        "wesołe": "pozostające w pozytywnym stanie emocjonalnym",
+        "zmęczony": "o obniżonym poziomie gotowości do działania",
+        "zmęczona": "o obniżonym poziomie gotowości do działania",
+        "zmęczone": "o obniżonym poziomie gotowości do działania",
+        "głodny": "oczekujący na dostarczenie posiłku",
+        "głodna": "oczekująca na dostarczenie posiłku",
+        "spragniony": "oczekujący na dostarczenie napoju",
+        "spragniona": "oczekująca na dostarczenie napoju",
+        "zimny": "o obniżonej temperaturze",
+        "zimna": "o obniżonej temperaturze",
+        "gorący": "o podwyższonej temperaturze",
+        "gorąca": "o podwyższonej temperaturze",
+        "rodzice": "osoby sprawujące opiekę rodzicielską",
+        "mieszkanie": "lokal mieszkalny",
+        "mieszkania": "lokale mieszkalne",
+        "mieszkaniu": "lokalu mieszkalnym",
+        "kuchnia": "pomieszczenie przeznaczone do przygotowywania posiłków",
+        "kuchni": "pomieszczeniu przeznaczonym do przygotowywania posiłków",
+        "łazienka": "pomieszczenie przeznaczone do czynności higienicznych",
+        "łazienki": "pomieszczenia przeznaczonego do czynności higienicznych",
+        "sklep": "placówka prowadząca sprzedaż towarów",
+        "sklepu": "placówki prowadzącej sprzedaż towarów",
+        "sklepem": "placówką prowadzącą sprzedaż towarów",
+        "sklepie": "placówce prowadzącej sprzedaż towarów",
+        "wieś": "miejscowość o charakterze wiejskim",
+        "wsi": "miejscowości o charakterze wiejskim",
+        "wsie": "miejscowości o charakterze wiejskim",
+        "gra": "aktywność o charakterze rekreacyjnym",
+        "gry": "aktywności o charakterze rekreacyjnym",
+        "grę": "aktywność o charakterze rekreacyjnym",
+        "czytam": "zapoznaję się z treścią materiału",
+        "czytasz": "zapoznajesz się z treścią materiału",
+        "czyta": "zapoznaje się z treścią materiału",
+        "czytamy": "zapoznajemy się z treścią materiału",
+        "czytacie": "zapoznajecie się z treścią materiału",
+        "czytają": "zapoznają się z treścią materiału",
+        "piszę": "sporządzam zapis w formie tekstowej",
+        "piszesz": "sporządzasz zapis w formie tekstowej",
+        "pisze": "sporządza zapis w formie tekstowej",
+        "piszemy": "sporządzamy zapis w formie tekstowej",
+        "piszą": "sporządzają zapis w formie tekstowej",
+        "jem": "dokonuję spożycia posiłku",
+        "jesz": "dokonujesz spożycia posiłku",
+        "je": "dokonuje spożycia posiłku",
+        "jemy": "dokonujemy spożycia posiłku",
+        "jedzą": "dokonują spożycia posiłku",
+        "piję": "dokonuję spożycia napoju",
+        "pijesz": "dokonujesz spożycia napoju",
+        "pije": "dokonuje spożycia napoju",
+        "piją": "dokonują spożycia napoju",
+        "mówię": "przekazuję wypowiedź ustną",
+        "mówisz": "przekazujesz wypowiedź ustną",
+        "mówi": "przekazuje wypowiedź ustną",
+        "mówią": "przekazują wypowiedź ustną",
+        "widzę": "odnotowuję wizualną obecność",
+        "widzisz": "odnotowujesz wizualną obecność",
+        "widzi": "odnotowuje wizualną obecność",
+        "wiem": "dysponuję wiedzą w przedmiotowym zakresie",
+        "wiesz": "dysponujesz wiedzą w przedmiotowym zakresie",
+        "wie": "dysponuje wiedzą w przedmiotowym zakresie",
+        "wiemy": "dysponujemy wiedzą w przedmiotowym zakresie",
+        "wiedzą": "dysponują wiedzą w przedmiotowym zakresie",
+        "mam": "pozostaje w mojej dyspozycji",
+        "masz": "pozostaje w dyspozycji adresata",
+        "ma": "pozostaje w dyspozycji wskazanego podmiotu",
+        "mamy": "pozostaje w dyspozycji strony",
+        "mają": "pozostaje w dyspozycji wskazanych osób",
+        "jestem": "pozostaję w stanie wskazanym w oświadczeniu",
+        "jesteś": "pozostajesz w stanie wskazanym w oświadczeniu",
+        "jest": "pozostaje w stanie wskazanym w oświadczeniu",
+        "są": "pozostają w stanie wskazanym w oświadczeniu",
+        "będę": "będę pozostawać w stanie wskazanym w oświadczeniu",
+        "będziesz": "będziesz pozostawać w stanie wskazanym w oświadczeniu",
+        "będzie": "będzie pozostawać w stanie wskazanym w oświadczeniu",
+        "będą": "będą pozostawać w stanie wskazanym w oświadczeniu",
+        "chcesz": "zgłaszasz zapotrzebowanie na realizację czynności",
+        "chce": "zgłasza zapotrzebowanie na realizację czynności",
+        "chcemy": "zgłaszamy zapotrzebowanie na realizację czynności",
+        "mogę": "posiadam możliwość realizacji",
+        "możesz": "posiadasz możliwość realizacji",
+        "może": "posiada możliwość realizacji",
+        "musisz": "zachodzi konieczność podjęcia przez adresata działań",
+        "musi": "zachodzi konieczność podjęcia działań przez wskazany podmiot",
+        "powinien": "wskazane jest podjęcie działania",
+        "robię": "realizuję wskazaną czynność",
+        "robisz": "realizujesz wskazaną czynność",
+        "robi": "realizuje wskazaną czynność",
+        "robią": "realizują wskazaną czynność",
+        "lubię": "deklaruję pozytywny stosunek do wskazanego przedmiotu",
+        "lubisz": "deklarujesz pozytywny stosunek do wskazanego przedmiotu",
+        "lubi": "deklaruje pozytywny stosunek do wskazanego przedmiotu",
+        "kocham": "deklaruję występowanie silnej więzi emocjonalnej",
+        "kochasz": "deklarujesz występowanie silnej więzi emocjonalnej",
+        "śpię": "pozostaję w stanie spoczynku",
+        "śpisz": "pozostajesz w stanie spoczynku",
+        "śpi": "pozostaje w stanie spoczynku",
+        "czekam": "pozostaję w gotowości na dalsze informacje",
+        "czekasz": "pozostajesz w gotowości na dalsze informacje",
+        "pomagam": "udzielam wsparcia w ramach dostępnych zasobów",
+        "pomagasz": "udzielasz wsparcia w ramach dostępnych zasobów",
+        "szukam": "prowadzę czynności mające na celu odnalezienie",
+        "szukasz": "prowadzisz czynności mające na celu odnalezienie",
+        "otwieram": "przystępuję do udostępnienia zawartości",
+        "zamykam": "przystępuję do zakończenia dostępu",
+        "daję": "przekazuję do dyspozycji",
+        "dajesz": "przekazujesz do dyspozycji",
+        "biorę": "przyjmuję do dyspozycji",
+        "bierzesz": "przyjmujesz do dyspozycji",
+        "kupuję": "dokonuję nabycia towaru",
+        "sprzedaję": "dokonuję zbycia towaru",
+        "mieszkam": "zamieszkuję pod wskazanym adresem",
+        "mieszkasz": "zamieszkujesz pod wskazanym adresem",
+        "mieszka": "zamieszkuje pod wskazanym adresem",
+        "mieszkamy": "zamieszkujemy pod wskazanym adresem",
+        "nazywam": "przedstawiam dane identyfikacyjne",
+        "nazywasz": "przedstawiasz dane identyfikacyjne",
+        "nazywa": "przedstawia dane identyfikacyjne",
+        "pamiętam": "posiadam informację zachowaną w pamięci",
+        "zapomniałem": "nie zachowałem informacji w pamięci",
+        "zapomniałam": "nie zachowałam informacji w pamięci",
+        "ładna": "posiadająca walory estetyczne",
+        "ładne": "posiadające walory estetyczne",
+        "dobrego": "spełniającego wymagane kryteria jakości",
+        "dobremu": "spełniającemu wymagane kryteria jakości",
+        "dobrych": "spełniających wymagane kryteria jakości",
+        "piękna": "o wysokich walorach estetycznych",
+        "piękne": "o wysokich walorach estetycznych",
+        "małego": "o niewielkich wymiarach",
+        "dużego": "o znacznych wymiarach",
+        "nowego": "niedawno wprowadzonego do użytkowania",
+        "starego": "użytkowanego przez dłuższy okres",
+        "młodego": "będącego w początkowym okresie życia",
+        "szybko": "w krótkim przedziale czasowym",
+        "wolno": "z ograniczoną prędkością",
+        "łatwo": "bez konieczności znacznych nakładów",
+        "trudno": "przy konieczności podjęcia dodatkowych działań",
+        "wesoło": "w pozytywnym nastroju",
+        "smutno": "w obniżonym nastroju",
+        "czerwony": "posiadający barwę czerwoną",
+        "niebieski": "posiadający barwę niebieską",
+        "zielony": "posiadający barwę zieloną",
+        "biały": "posiadający barwę białą",
+        "czarny": "posiadający barwę czarną",
+        "pierwszy": "zajmujący pozycję numer jeden",
+        "drugi": "zajmujący pozycję numer dwa",
+        "ostatni": "zajmujący końcową pozycję",
+        "nowy": "niedawno wprowadzony do użytkowania",
+        "nowa": "niedawno wprowadzona do użytkowania",
+        "nowe": "niedawno wprowadzone do użytkowania",
+        "pracuję": "wykonuję obowiązki służbowe",
+        "pracujesz": "wykonujesz obowiązki służbowe",
+        "pracuje": "wykonuje obowiązki służbowe",
+        "pracujemy": "wykonujemy obowiązki służbowe",
+        "idę": "przemieszczam się do wskazanej lokalizacji",
+        "idziesz": "przemieszczasz się do wskazanej lokalizacji",
+        "idzie": "przemieszcza się do wskazanej lokalizacji",
+        "idziemy": "przemieszczamy się do wskazanej lokalizacji",
+        "psami": "zwierzętami domowymi z gatunku psowatych",
+        "wszystko": "całość przedmiotowego zakresu",
+        "nic": "brak wskazanego przedmiotu lub informacji",
+        "każdy": "każdy z rozpatrywanych podmiotów",
+        "każda": "każda z rozpatrywanych osób lub rzeczy",
+        "każde": "każdy z rozpatrywanych elementów",
+        "inny": "odmienny od wskazanego",
+        "inna": "odmienna od wskazanej",
+        "inne": "odmienne od wskazanych",
+        "tutaj": "w bieżącej lokalizacji",
+        "tam": "we wskazanej lokalizacji",
+        "gdzie": "w jakiej lokalizacji",
+        "dokąd": "do jakiej lokalizacji",
+        "skąd": "z jakiej lokalizacji",
+        "dlaczego": "z jakiej przyczyny",
+        "jak": "w jaki sposób",
+        "ile": "w jakiej liczbie lub ilości",
+        "kto": "która osoba",
+        "co": "jaki przedmiot lub zakres sprawy",
         "gotowe": "uznaje się za wykonane na obecnym etapie"
       };
 
@@ -1793,8 +2274,6 @@
           throw new Error("Przesunięcie musi być liczbą od 1 do 25.");
         }
         if (mode === "oldPolish") return stylizeOldPolish(text);
-        if (mode === "pirate") return stylizeWords(text, pirateWords);
-        if (mode === "emoji") return stylizeWords(text, emojiWords);
         if (mode === "bureaucratic") return stylizeWords(text, bureaucraticWords);
         if (mode === "cat") return decrypting ? decodeWords(text, cats) : encodeWords(text, cats);
         if (mode === "fish") return decrypting ? decodeWords(text, fish) : encodeWords(text, fish);
@@ -1843,7 +2322,7 @@
           railFence: "Płotkowy", affine: "Afiniczny", bacon: "Bacon A/B",
           hex: "Szesnastkowy", base64: "Base64", url: "URL",
           reverse: "Od tyłu", oldPolish: "Staropolszczyzna",
-          pirate: "Piracki", emoji: "Emojijski", bureaucratic: "Urzędowy"
+          bureaucratic: "Urzędowy"
         })[mode];
       }
 
@@ -1855,7 +2334,7 @@
         $("keyField").classList.toggle("visible", mode === "vigenere" || mode === "autokey");
         $("railsField").classList.toggle("visible", mode === "railFence");
         $("affineField").classList.toggle("visible", mode === "affine");
-        const oneWayMode = ["oldPolish", "pirate", "emoji", "bureaucratic"].includes(mode);
+        const oneWayMode = ["oldPolish", "bureaucratic"].includes(mode);
         $("directionButton").disabled = oneWayMode;
         $("directionButton").title = oneWayMode ? "Ta stylizacja działa tylko w kierunku polski → stylizacja." : "";
         $("directionMark").textContent = oneWayMode ? "→" : decrypting ? "←" : "→";
@@ -1887,7 +2366,7 @@
 
       $("inputText").addEventListener("input", update);
       $("mode").addEventListener("change", () => {
-        if (["oldPolish", "pirate", "emoji", "bureaucratic"].includes($("mode").value)) decrypting = false;
+        if (["oldPolish", "bureaucratic"].includes($("mode").value)) decrypting = false;
         update();
       });
       ["shift", "cipherKey", "rails", "affineA", "affineB"].forEach((id) => $(id).addEventListener("input", update));
