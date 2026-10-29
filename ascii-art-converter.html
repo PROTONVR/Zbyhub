@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101113">
+  <meta name="description" content="Ascii Art Converter — zamień zdjęcie w tekstową grafikę ASCII lokalnie w przeglądarce.">
+  <title>Ascii Art Converter</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101113;
+      --panel: #191a1d;
+      --raised: #202125;
+      --line: #303136;
+      --text: #f1f0ed;
+      --muted: #98999f;
+      --accent: #BF00FF;
+      --accent-hover: #D24DFF;
+      --ink: #12051a;
+      --danger: #ff8279;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      background: radial-gradient(ellipse at 83% -10%, rgb(191 0 255 / 10%), transparent 35rem), var(--bg);
+    }
+    button, input { font: inherit; }
+    button, a { color: inherit; }
+    .app { width: min(1100px, calc(100% - 40px)); margin: auto; padding: 28px 0 42px; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 56px; }
+    .brand { display: flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; }
+    .brand-mark { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 12px 12px 12px 3px; color: var(--ink); background: var(--accent); font-size: 19px; font-weight: 950; transform: rotate(-5deg); }
+    .brand-name { font-size: 14px; font-weight: 900; letter-spacing: .11em; }
+    .home-link { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 9px; padding: 0 14px; background: var(--panel); font-size: 11px; font-weight: 750; text-decoration: none; }
+    .home-link:hover, .home-link:focus-visible { border-color: var(--accent); }
+    .intro { margin-bottom: 25px; }
+    .eyebrow { margin: 0 0 12px; color: var(--accent); font-size: 10px; font-weight: 850; letter-spacing: .17em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(40px, 7vw, 68px); line-height: .98; letter-spacing: -.065em; }
+    .subtitle { max-width: 650px; margin: 15px 0 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
+    .workspace { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 16px; align-items: start; }
+    .panel { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 15px; background: linear-gradient(145deg, rgb(255 255 255 / 2%), transparent 45%), var(--panel); }
+    .panel-heading { margin: 0; border-bottom: 1px solid var(--line); padding: 15px 17px; font-size: 12px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+    .controls { display: grid; gap: 18px; padding: 17px; }
+    .upload { display: grid; min-height: 112px; place-items: center; border: 1px dashed #55565d; border-radius: 10px; padding: 18px; color: var(--muted); text-align: center; cursor: pointer; }
+    .upload:hover, .upload:focus-within { border-color: var(--accent); color: var(--text); }
+    .upload strong { display: block; margin-bottom: 5px; color: var(--text); font-size: 13px; }
+    .upload span { font-size: 11px; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); white-space: nowrap; }
+    .preview { display: grid; min-height: 210px; max-height: 340px; place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: #111214; }
+    .preview img { display: none; max-width: 100%; max-height: 338px; object-fit: contain; }
+    .preview.has-image img { display: block; }
+    .preview-empty { max-width: 230px; padding: 18px; color: var(--muted); font-size: 12px; line-height: 1.5; text-align: center; }
+    .preview.has-image .preview-empty { display: none; }
+    .setting { display: grid; gap: 9px; }
+    .setting-heading { display: flex; justify-content: space-between; gap: 12px; color: var(--text); font-size: 12px; font-weight: 700; }
+    .setting-heading output { color: var(--muted); font-variant-numeric: tabular-nums; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    .range-limits { display: flex; justify-content: space-between; color: var(--muted); font-size: 10px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 9px; border-top: 1px solid var(--line); padding-top: 15px; }
+    .button { display: inline-flex; min-height: 41px; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--line); border-radius: 8px; padding: 0 13px; background: var(--raised); font-size: 11px; font-weight: 750; text-decoration: none; cursor: pointer; }
+    .button:hover:not(:disabled) { border-color: #5b5d63; }
+    .button:disabled { cursor: not-allowed; opacity: .45; }
+    .primary { border-color: var(--accent); color: var(--ink); background: var(--accent); }
+    .primary:hover:not(:disabled) { border-color: var(--accent-hover); background: var(--accent-hover); }
+    .output-wrap { max-height: 650px; overflow: auto; background: #111214; }
+    #asciiOutput { min-width: max-content; min-height: 100%; margin: 0; padding: 16px; color: #eee8f2; font: 8px/1.05 "Cascadia Mono", Consolas, "Courier New", monospace; white-space: pre; user-select: text; }
+    .output-empty { padding: 22px; color: var(--muted); font-size: 12px; }
+    .output-panel .actions { padding: 12px 15px; border-top: 1px solid var(--line); }
+    .status { min-height: 17px; margin: 0; color: var(--muted); font-size: 11px; }
+    .status.error { color: var(--danger); }
+    footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 9px 16px; margin-top: 24px; color: #777980; font-size: 10px; }
+    footer span:last-child { color: var(--accent); }
+    button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    @media (max-width: 760px) {
+      .app { width: min(600px, calc(100% - 28px)); padding-top: 20px; }
+      header { margin-bottom: 40px; }
+      .workspace { grid-template-columns: 1fr; }
+      .preview { min-height: 180px; }
+    }
+    @media (max-width: 420px) {
+      .app { width: calc(100% - 24px); }
+      .brand-name { font-size: 12px; letter-spacing: .07em; }
+      .brand-mark { width: 36px; height: 36px; }
+      .home-link { min-height: 39px; padding: 0 10px; }
+      .actions .button { flex: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <a class="brand" href="./index.html" aria-label="ZbyHub">
+        <span class="brand-mark" aria-hidden="true">A</span>
+        <span class="brand-name">ASCII ART CONVERTER</span>
+      </a>
+      <a class="home-link" href="./index.html">← ZbyHub</a>
+    </header>
+    <section class="intro" aria-labelledby="pageTitle">
+      <p class="eyebrow">Obraz · tekstowa grafika</p>
+      <h1 id="pageTitle">Ascii Art Converter</h1>
+      <p class="subtitle">Wybierz zdjęcie i obserwuj, jak zmienia się w grafikę ASCII. Dopasuj rozmiar, jasność i kontrast — podgląd aktualizuje się na żywo. Całe przetwarzanie odbywa się lokalnie w przeglądarce.</p>
+    </section>
+    <section class="workspace" aria-label="Konwerter obrazu na ASCII">
+      <section class="panel" aria-labelledby="settingsTitle">
+        <h2 class="panel-heading" id="settingsTitle">Obraz i ustawienia</h2>
+        <div class="controls">
+          <label class="upload" for="imageInput">
+            <span><strong id="uploadTitle">Wybierz zdjęcie</strong><span id="uploadHint">PNG, JPG, GIF, WebP i inne obsługiwane formaty</span></span>
+          </label>
+          <input class="visually-hidden" id="imageInput" type="file" accept="image/*">
+          <div class="preview" id="imagePreview">
+            <img id="sourceImage" alt="Podgląd wybranego zdjęcia">
+            <div class="preview-empty">Podgląd zdjęcia pojawi się tutaj po wybraniu pliku.</div>
+          </div>
+          <label class="setting" for="sizeSlider">
+            <span class="setting-heading"><span>Rozmiar ASCII</span><output id="sizeValue" for="sizeSlider">80 znaków szerokości</output></span>
+            <input id="sizeSlider" type="range" min="30" max="180" step="5" value="80" disabled>
+            <span class="range-limits"><span>Mniejszy</span><span>Większy</span></span>
+          </label>
+          <label class="setting" for="brightnessSlider">
+            <span class="setting-heading"><span>Jasność</span><output id="brightnessValue" for="brightnessSlider">0</output></span>
+            <input id="brightnessSlider" type="range" min="-100" max="100" step="1" value="0" disabled>
+            <span class="range-limits"><span>Ciemniej</span><span>Jaśniej</span></span>
+          </label>
+          <label class="setting" for="contrastSlider">
+            <span class="setting-heading"><span>Kontrast</span><output id="contrastValue" for="contrastSlider">1.0×</output></span>
+            <input id="contrastSlider" type="range" min="50" max="200" step="5" value="100" disabled>
+            <span class="range-limits"><span>Mniej</span><span>Więcej</span></span>
+          </label>
+          <p class="status" id="status" role="status" aria-live="polite">Wybierz obraz, aby rozpocząć.</p>
+        </div>
+      </section>
+      <section class="panel output-panel" aria-labelledby="outputTitle">
+        <h2 class="panel-heading" id="outputTitle">Podgląd ASCII na żywo</h2>
+        <div class="output-wrap" id="outputWrap">
+          <div class="output-empty" id="outputEmpty">Tutaj pojawi się grafika ASCII.</div>
+          <pre id="asciiOutput" aria-label="Wynikowa grafika ASCII"></pre>
+        </div>
+        <div class="actions">
+          <button class="button primary" id="outputCopyButton" type="button" disabled>Kopiuj ASCII</button>
+          <button class="button" id="outputDownloadButton" type="button" disabled>Pobierz plik .txt</button>
+        </div>
+      </section>
+    </section>
+    <footer>
+      <span>Ascii Art Converter · działa lokalnie w Twojej przeglądarce</span>
+      <span>Autorem jest nieznany developer "Zbigniew"</span>
+      <span>Wersja modułu: 1.0.0</span>
+    </footer>
+  </main>
+  <canvas id="workCanvas" hidden></canvas>
+  <script>
+    (() => {
+      const $ = id => document.getElementById(id);
+      const imageInput = $("imageInput");
+      const image = $("sourceImage");
+      const canvas = $("workCanvas");
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      const output = $("asciiOutput");
+      const status = $("status");
+      const sliders = ["sizeSlider", "brightnessSlider", "contrastSlider"].map($);
+      const copyButton = $("outputCopyButton");
+      const downloadButton = $("outputDownloadButton");
+      const ramp = "@%#*+=-:. ";
+      let imageUrl = "";
+      let ascii = "";
+
+      function setStatus(message, isError = false) {
+        status.textContent = message;
+        status.classList.toggle("error", isError);
+      }
+
+      function updateLabels() {
+        $("sizeValue").textContent = `${$("sizeSlider").value} znaków szerokości`;
+        $("brightnessValue").textContent = Number($("brightnessSlider").value) > 0
+          ? `+${$("brightnessSlider").value}`
+          : $("brightnessSlider").value;
+        $("contrastValue").textContent = `${(Number($("contrastSlider").value) / 100).toFixed(1)}×`;
+      }
+
+      function renderAscii() {
+        if (!image.naturalWidth || !image.naturalHeight) return;
+        const columns = Number($("sizeSlider").value);
+        const rows = Math.max(1, Math.round(columns * image.naturalHeight / image.naturalWidth * 0.5));
+        canvas.width = columns;
+        canvas.height = rows;
+        context.imageSmoothingEnabled = true;
+        context.drawImage(image, 0, 0, columns, rows);
+        const pixels = context.getImageData(0, 0, columns, rows).data;
+        const brightness = Number($("brightnessSlider").value);
+        const contrast = Number($("contrastSlider").value) / 100;
+        const lines = new Array(rows);
+        for (let y = 0; y < rows; y++) {
+          let line = "";
+          for (let x = 0; x < columns; x++) {
+            const offset = (y * columns + x) * 4;
+            const luminance = pixels[offset] * 0.2126 + pixels[offset + 1] * 0.7152 + pixels[offset + 2] * 0.0722;
+            const adjusted = Math.max(0, Math.min(255, (luminance - 128) * contrast + 128 + brightness));
+            const index = Math.min(ramp.length - 1, Math.floor(adjusted / 256 * ramp.length));
+            line += ramp[index];
+          }
+          lines[y] = line;
+        }
+        ascii = lines.join("\n");
+        output.textContent = ascii;
+        $("outputEmpty").hidden = true;
+        copyButton.disabled = false;
+        downloadButton.disabled = false;
+        setStatus(`Gotowe · ${columns} × ${rows} znaków`);
+      }
+
+      async function copyAscii() {
+        if (!ascii) return;
+        try {
+          await navigator.clipboard.writeText(ascii);
+        } catch (error) {
+          const temporary = document.createElement("textarea");
+          temporary.value = ascii;
+          temporary.setAttribute("readonly", "");
+          temporary.style.position = "fixed";
+          temporary.style.opacity = "0";
+          document.body.append(temporary);
+          temporary.select();
+          const copied = document.execCommand("copy");
+          temporary.remove();
+          if (!copied) {
+            setStatus("Nie udało się skopiować. Zaznacz i skopiuj wynik ręcznie.", true);
+            return;
+          }
+        }
+        setStatus("Skopiowano grafikę ASCII do schowka.");
+      }
+
+      function downloadAscii() {
+        if (!ascii) return;
+        const blob = new Blob([ascii], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${(imageInput.files[0]?.name || "ascii-art").replace(/\.[^.]+$/, "")}_ascii.txt`;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      imageInput.addEventListener("change", () => {
+        const file = imageInput.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+          setStatus("Wybierz prawidłowy plik obrazu.", true);
+          return;
+        }
+        if (imageUrl) URL.revokeObjectURL(imageUrl);
+        imageUrl = URL.createObjectURL(file);
+        image.onload = () => {
+          $("imagePreview").classList.add("has-image");
+          $("uploadTitle").textContent = file.name;
+          sliders.forEach(slider => { slider.disabled = false; });
+          updateLabels();
+          renderAscii();
+        };
+        image.onerror = () => setStatus("Nie udało się odczytać tego obrazu.", true);
+        image.src = imageUrl;
+      });
+
+      sliders.forEach(slider => slider.addEventListener("input", () => {
+        updateLabels();
+        renderAscii();
+      }));
+      copyButton.addEventListener("click", copyAscii);
+      downloadButton.addEventListener("click", downloadAscii);
+      window.addEventListener("beforeunload", () => {
+        if (imageUrl) URL.revokeObjectURL(imageUrl);
+      });
+      updateLabels();
+    })();
+  </script>
+</body>
+</html>
